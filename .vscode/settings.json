@@ -1,0 +1,8 @@
+{
+    "editor.tabSize": 2,
+    "files.associations": {
+        "*.h": "c",
+        "*.toml": "toml",
+        "iostream": "cpp"
+    }
+}
