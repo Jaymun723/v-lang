@@ -1,30 +1,54 @@
 SRC_DIR := src
 BUILD_DIR := build
+TEST_DIR := test
 TARGET_NAME := v-lang
-TARGET := $(BUILD_DIR)/$(TARGET_NAME)
+TARGET_SRC := $(SRC_DIR)/$(TARGET_NAME).c
+TARGET := $(BUILD_DIR)/$(TARGET_NAME) 
+TARGET_OBJ := $(BUILD_DIR)/$(TARGET_NAME).o
 
-# Find all .cpp files recursively in src/
-SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
-OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
-
-CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Wuninitialized -pedantic
+# Compiler and flags
+CC := gcc
+CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic
 INCLUDES := -I$(SRC_DIR)
 
-# Create build directories for object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+# Source files (exclude v-lang.c for tests)
+SRCS = $(filter-out $(TARGET_SRC), $(wildcard $(SRC_DIR)/*.c))
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
 
+# Default target: build the app
 all: $(TARGET)
 
-run: all
-	$(BUILD_DIR)/$(TARGET_NAME)
+# Build main executable
+$(TARGET): $(OBJS) $(TARGET_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+# Build main file separately
+$(TARGET_OBJ): $(TARGET_SRC)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Create build directories for object files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Run the app
+run: all
+	$(TARGET)
+
+test-%: $(OBJS)
+	@mkdir -p $(BUILD_DIR)
+	@if [ ! -f $(TEST_DIR)/test_$*.c ]; then \
+		echo "Error: $(TEST_DIR)/test_$*.c does not exist!"; \
+		exit 1; \
+	fi
+	@echo "Building test for $*..."
+	$(CC) $(CFLAGS) $(INCLUDES) $^ $(TEST_DIR)/test_$*.c -o $(BUILD_DIR)/test_$*
+	@echo "Running test_$*..."
+	$(BUILD_DIR)/test_$*
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: all run clean
