@@ -1,25 +1,40 @@
 #pragma once
 #include "list.h"
 #include <stdbool.h>
+#include <stdio.h>
+
+#define GENERATE_ENUM(ENUM) ENUM,
+#define GENERATE_ENUM_WITH_PREFIX_KW(ENUM) kw##ENUM,
+#define GENERATE_STRING(STRING) #STRING,
+
+#define FOREACH_TOKEN(TOKEN)                                                   \
+  TOKEN(Keyword)                                                               \
+  TOKEN(Integer)                                                               \
+  TOKEN(Floating)                                                              \
+  TOKEN(OpenParent)                                                            \
+  TOKEN(CloseParent)                                                           \
+  TOKEN(Word)                                                                  \
+  TOKEN(Space)                                                                 \
+  TOKEN(Newline)                                                               \
+  TOKEN(EndOfFile)
 
 typedef enum TokenType {
-  Keyword,
-  Integer,
-  Floating,
-  OpenParent,
-  CloseParent,
-  Word,
-  Identifier,
-  Space,
-  Newline,
+  FOREACH_TOKEN(GENERATE_ENUM) TokenTypeCount
 } TokenType;
 
-#define KEYWORD_COUNT 1
-static const char *KEYWORDS[KEYWORD_COUNT] = {"print"};
+static const char *TOKEN_TYPE_STRING[] = {FOREACH_TOKEN(GENERATE_STRING)};
+
+#define FOREACH_KEYWORD(KEYWORD) KEYWORD(print)
+
+typedef enum KeywordType {
+  FOREACH_KEYWORD(GENERATE_ENUM_WITH_PREFIX_KW) KeywordTypeCount
+} KeywordType;
+
+static const char *KEYWORD_TYPE_STRING[] = {FOREACH_KEYWORD(GENERATE_STRING)};
 
 typedef struct Token {
   TokenType type;
-  char *value;
+  void *value;
 
   struct Token *prev;
   struct Token *next;
@@ -32,16 +47,11 @@ typedef struct TokenList {
   int length;
 } TokenList;
 
-void tkl_free(TokenList *list, bool freeTokensString);
+void tokenFree(Token *tok, bool freeValue);
+void tklFree(TokenList *list, bool freeTokensString);
 
-void tkl_print(TokenList *tkl);
-
-TokenList *toWords(const char *sourceCode);
-
-/**
- * Tokenize the source code. The tokens hold their own copy of the code source,
- * so it can be freed without creating errors.
- */
-TokenList *tokenize_words(const char *sourceCode);
+void tokenFprintf(FILE *channel, Token *tok);
+void tokenPrintf(Token *tok);
+void tklPrint(TokenList *tkl);
 
 TokenList *tokenize(const char *sourceCode);

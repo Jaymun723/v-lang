@@ -41,8 +41,6 @@ int stringCmp(const char *a, const char *b) {
 char *stringCopyN(const char *source, int n) {
   if (n == -1) {
     n = stringLength(source);
-  } else if (n == 0) {
-    return NULL;
   }
   char *res = (char *)malloc(sizeof(char) * (n + 1));
   for (int i = 0; i < n; i++) {
@@ -54,7 +52,7 @@ char *stringCopyN(const char *source, int n) {
 
 bool isNum(char c) { return c >= '0' && c <= '9'; }
 
-bool isAlpha(char c) {
+bool isLetter(char c) {
   if (c >= 'a' && c <= 'z')
     return true;
   if (c >= 'A' && c <= 'Z')
@@ -62,7 +60,7 @@ bool isAlpha(char c) {
   return false;
 }
 
-bool isAlphanum(char c) { return isNum(c) || isAlpha(c); }
+bool isAlphanum(char c) { return isNum(c) || isLetter(c); }
 
 bool isInteger(const char *str) {
   int i = 0;
@@ -76,6 +74,19 @@ bool isInteger(const char *str) {
     return false;
   }
   return true;
+}
+
+int *readInteger(const char *str, int start, int end) {
+  int *res = malloc(sizeof(int));
+  *res = 0;
+  for (int i = start; i < end; i++) {
+    int n = (int)(str[i] - '0');
+    // *res = 10 * (*res) + n;
+    *res *= 10;
+    *res += n;
+    // printf("int: read %d, thus res is %d\n", n, *res);
+  }
+  return res;
 }
 
 bool isFloating(const char *str) {
@@ -97,4 +108,25 @@ bool isFloating(const char *str) {
     return false;
   }
   return true;
+}
+
+double *readFloating(const char *str, int start, int end) {
+  double *res = malloc(sizeof(double));
+  *res = 0.0;
+  int i = start;
+  while (str[i] != '.') {
+    int n = (int)(str[i] - '0');
+    *res *= 10.0;
+    *res += (double)n;
+    i++;
+    // printf("float (start): read %d, thus res is %f\n", n, *res);
+  }
+  double rest = 0.0;
+  for (int j = end - 1; j > i; j--) {
+    int n = (int)(str[j] - '0');
+    rest = 0.1 * rest + n;
+    // printf("float (end): read %d, thus rest is %f\n", n, rest);
+  }
+  *res = *res + 0.1 * rest;
+  return res;
 }

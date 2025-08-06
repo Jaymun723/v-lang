@@ -8,7 +8,7 @@ TARGET_OBJ := $(BUILD_DIR)/$(TARGET_NAME).o
 
 # Compiler and flags
 CC := gcc
-CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic
+CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic -fsanitize=address -fno-omit-frame-pointer
 INCLUDES := -I$(SRC_DIR)
 
 # Source files (exclude v-lang.c for tests)

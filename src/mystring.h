@@ -12,8 +12,10 @@ int stringCmp(const char *a, const char *b);
 char *stringCopyN(const char *source, int n);
 
 bool isNum(char c);
-bool isAlpha(char c);
+bool isLetter(char c);
 bool isAlphanum(char c);
 
 bool isInteger(const char *str);
+int *readInteger(const char *str, int start, int end);
 bool isFloating(const char *str);
+double *readFloating(const char *str, int start, int end);

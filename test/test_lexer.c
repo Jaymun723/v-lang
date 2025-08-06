@@ -50,12 +50,16 @@ int main() {
   // TEST_ASSERT(i == 4);
   // tkl_free(tkl, true);
 
-  char *sourceCode = "print (5.4)78\n";
+  char *sourceCode = "print        (4.5)\nassert (1yes)\nchain 5.4.1";
+  printf("Reading: \"\"\"%s\"\"\"\n", sourceCode);
   TokenList *tkl = tokenize(sourceCode);
+  printf("TokenList:\n");
+  tklPrint(tkl);
   if (tkl != NULL) {
-    tkl_free(tkl, true);
+    tklFree(tkl, true);
   }
 
   TEST_PASS("All lexer tests passed!");
+
   return 0;
 }
