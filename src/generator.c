@@ -63,8 +63,6 @@ int sizeWasmImportSection(WasmImportSection *section) {
   int size = 1;
   for (WasmImport *import = section->importHead; import != NULL;
        import = import->next) {
-    int importSize = sizeWasmImport(import);
-    // printf("importSize=%d\n", importSize);
     size += sizeWasmImport(import);
   }
   return size;

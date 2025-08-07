@@ -12,8 +12,9 @@ CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic -fsanitize=address -f
 INCLUDES := -I$(SRC_DIR)
 
 # Source files (exclude v-lang.c for tests)
-SRCS = $(filter-out $(TARGET_SRC), $(wildcard $(SRC_DIR)/*.c))
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
+SRCS := $(filter-out $(TARGET_SRC), $(shell find $(SRC_DIR) -name '*.c'))
+OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
+
 
 # Default target: build the app
 all: $(TARGET)
