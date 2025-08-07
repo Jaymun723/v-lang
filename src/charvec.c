@@ -87,6 +87,10 @@ char getCv(CharVec *cv, int i) {
 
 void writeCv(FILE *file, CharVec *cv) {
   fputc(cv->length, file);
+  writeRawCv(file, cv);
+}
+
+void writeRawCv(FILE *file, CharVec *cv) {
   for (int i = 0; i < cv->length; i++) {
     fputc(cv->data[i], file);
   }

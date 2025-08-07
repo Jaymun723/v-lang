@@ -53,7 +53,8 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 gen: test-generator
-	hd test.wasm > test.hd.txt
-	$(HOME)/code/wabt/bin/wasm2wat test.wasm -o test.wat
+	hd out/main.wasm > out/main.hd.txt
+	$(HOME)/code/wabt/bin/wasm2wat out/main.wasm -o out/main.wat
+	node out/main.js
 
 .PHONY: all run clean

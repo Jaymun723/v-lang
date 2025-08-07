@@ -95,10 +95,41 @@ void writeWasmStartSection(FILE *file, WasmStartSection *section) {
   fputc(section->index, file);
 }
 
+int sizeWasmCode(WasmCode *code) {
+  return sizeCv(code->locals) + code->body->length;
+}
+
+void writeWasmCode(FILE *file, WasmCode *code) {
+  fputc(sizeWasmCode(code), file);
+  writeCv(file, code->locals);
+  writeRawCv(file, code->body);
+  if (code->next != NULL) {
+    writeWasmCode(file, code->next);
+  }
+}
+
+int sizeWasmCodeSection(WasmCodeSection *section) {
+  int size = 1;
+  for (WasmCode *code = section->codeHead; code != NULL; code = code->next) {
+    size += 1 + sizeWasmCode(code);
+  }
+  return size;
+}
+
+void writeWasmCodeSection(FILE *file, WasmCodeSection *section) {
+  fputc(section->id, file);
+  fputc(sizeWasmCodeSection(section), file);
+  fputc(section->numCodes, file);
+  if (section->numCodes != 0) {
+    writeWasmCode(file, section->codeHead);
+  }
+}
+
 void writeModule(FILE *file, WasmModule *module) {
   writeHead(file);
   writeWasmTypeSection(file, module->typesSection);
   writeWasmImportSection(file, module->importSection);
   writeWasmFunctionSection(file, module->functionSection);
   writeWasmStartSection(file, module->startSection);
+  writeWasmCodeSection(file, module->codeSection);
 }

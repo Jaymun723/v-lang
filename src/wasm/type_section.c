@@ -17,7 +17,7 @@ void freeFunctionType(WasmFunctionType *funcType) {
 }
 
 void fprintfFunctionType(FILE *channel, WasmFunctionType *funcType) {
-  fprintf(channel, "(func");
+  fprintf(channel, " (type (func");
   if (funcType->params->length != 0) {
     fprintf(channel, " (param ");
     fprintfCv(channel, funcType->params, true);
@@ -28,9 +28,9 @@ void fprintfFunctionType(FILE *channel, WasmFunctionType *funcType) {
     fprintfCv(channel, funcType->results, true);
     fprintf(channel, ")");
   }
-  fprintf(channel, ")");
+  fprintf(channel, "))");
   if (funcType->next != NULL) {
-    fprintf(channel, " ");
+    fprintf(channel, "\n");
     fprintfFunctionType(channel, funcType->next);
   }
 }
@@ -89,9 +89,7 @@ void freeWasmTypesSection(WasmTypesSection *section) {
 }
 
 void fprintfWasmTypeSection(FILE *channel, WasmTypesSection *section) {
-  fprintf(channel, " (type ");
   if (section->funcTypesHead != NULL) {
     fprintfFunctionType(channel, section->funcTypesHead);
   }
-  fprintf(channel, ")");
 }

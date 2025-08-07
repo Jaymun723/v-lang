@@ -9,7 +9,7 @@ WasmFunctionSection *createDefaultWasmFunctionSection() {
   section->types = cvCreate();
 
   // Main fun
-  appendCv(section->types, 0x01);
+  appendCv(section->types, 0x00);
 
   return section;
 }

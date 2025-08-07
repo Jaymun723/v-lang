@@ -1,4 +1,5 @@
 #pragma once
+#include "code_section.h"
 #include "function_section.h"
 #include "import_section.h"
 #include "start_section.h"
@@ -10,6 +11,7 @@ typedef struct WasmModule {
   WasmImportSection *importSection;
   WasmFunctionSection *functionSection;
   WasmStartSection *startSection;
+  WasmCodeSection *codeSection;
 } WasmModule;
 
 WasmModule *createModule();

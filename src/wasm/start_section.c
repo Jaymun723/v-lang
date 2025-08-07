@@ -14,5 +14,5 @@ WasmStartSection *createDefaultWasmStartSection() {
 void freeWasmStartSection(WasmStartSection *section) { free(section); }
 
 void fprintfWasmStartSection(FILE *channel, WasmStartSection *section) {
-  fprintf(channel, " [start %d]", section->id);
+  fprintf(channel, " (start %d)", section->index);
 }

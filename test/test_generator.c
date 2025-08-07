@@ -3,7 +3,7 @@
 #include "wasm/module.h"
 
 int main() {
-  FILE *file = fopen("test.wasm", "wb");
+  FILE *file = fopen("out/main.wasm", "wb");
   WasmModule *module = createModule();
   printfWasmModule(module);
   writeModule(file, module);

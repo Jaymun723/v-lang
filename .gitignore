@@ -1,4 +1,4 @@
 build/
-*.wasm
-*.wat
-*.hd.txt
+out/*.wasm
+out/*.wat
+out/*.hd.txt

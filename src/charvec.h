@@ -20,4 +20,5 @@ void setCv(CharVec *cv, int i, char c);
 char getCv(CharVec *cv, int i);
 
 void writeCv(FILE *file, CharVec *c);
+void writeRawCv(FILE *file, CharVec *c);
 int sizeCv(CharVec *cv);
