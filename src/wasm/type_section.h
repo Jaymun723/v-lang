@@ -1,5 +1,5 @@
 #pragma once
-#include "charvec.h"
+#include "../charvec.h"
 #include <stdio.h>
 
 typedef enum WasmValueTypeCode {

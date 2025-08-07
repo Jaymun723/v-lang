@@ -6,6 +6,8 @@ WasmModule *createModule() {
   // module->typesSection = NULL;
   module->typesSection = createDefaultTypesSection();
   module->importSection = createDefaultImportSection();
+  module->functionSection = createDefaultWasmFunctionSection();
+  module->startSection = createDefaultWasmStartSection();
   return module;
 }
 
@@ -19,6 +21,14 @@ void fprintfWasmModule(FILE *channel, WasmModule *module) {
     fprintfWasmImportSection(channel, module->importSection);
     fprintf(channel, "\n");
   }
+  if (module->functionSection != NULL) {
+    fprintfWasmFunctionSection(channel, module->functionSection);
+    fprintf(channel, "\n");
+  }
+  if (module->startSection != NULL) {
+    fprintfWasmStartSection(channel, module->startSection);
+    fprintf(channel, "\n");
+  }
   fprintf(channel, ")\n");
 }
 
@@ -30,6 +40,12 @@ void freeWasmModule(WasmModule *module) {
   }
   if (module->importSection != NULL) {
     freeWasmImportSection(module->importSection);
+  }
+  if (module->functionSection != NULL) {
+    freeWasmFunctionSection(module->functionSection);
+  }
+  if (module->startSection != NULL) {
+    freeWasmStartSection(module->startSection);
   }
   free(module);
 }

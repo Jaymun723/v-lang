@@ -91,3 +91,5 @@ void writeCv(FILE *file, CharVec *cv) {
     fputc(cv->data[i], file);
   }
 }
+
+int sizeCv(CharVec *cv) { return 1 + cv->length; }

@@ -50,7 +50,7 @@ WasmImportSection *createDefaultImportSection() {
   section->importHead = NULL;
   section->importTail = NULL;
 
-  addWasmImport(section, "env", "print", 0x00, 0);
+  addWasmImport(section, "env", "print", 0x00, 1);
 
   return section;
 }

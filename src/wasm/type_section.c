@@ -1,13 +1,17 @@
 #include "type_section.h"
 #include "../mystring.h"
+#include "function_section.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 void freeFunctionType(WasmFunctionType *funcType) {
+  // printf("freeing funcTyp -> %p\n", (void *)funcType);
+  // printf("going to free params at: %p\n", (void *)funcType->params);
   freeCv(funcType->params);
+  // printf("going to free results at: %p\n", (void *)funcType->results);
   freeCv(funcType->results);
   if (funcType->next != NULL) {
-    freeFunctionType(funcType);
+    freeFunctionType(funcType->next);
   }
   free(funcType);
 }
@@ -47,6 +51,8 @@ void addFunctionType(WasmTypesSection *section, CharVec *params,
   }
   section->funcTypesTail = funcType;
   section->numTypes++;
+
+  // printf("New functionType: <- %p\n", (void *)funcType);
 }
 
 WasmTypesSection *createDefaultTypesSection() {
@@ -57,12 +63,20 @@ WasmTypesSection *createDefaultTypesSection() {
   typesSection->funcTypesHead = NULL;
   typesSection->funcTypesTail = NULL;
 
-  // i32 -> ()
-  CharVec *params = cvCreate();
-  appendCv(params, (char)wasm_f32);
-  CharVec *results = cvCreate();
+  // () -> ()
+  CharVec *paramsType0 = cvCreate();
+  // printf("paramsType0 <- %p\n", (void *)paramsType0);
+  CharVec *resultsType0 = cvCreate();
+  // printf("resultsType0 <- %p\n", (void *)resultsType0);
+  addFunctionType(typesSection, paramsType0, resultsType0);
 
-  addFunctionType(typesSection, params, results);
+  // i32 -> ()
+  CharVec *paramsType1 = cvCreate();
+  // printf("paramsType1 <- %p\n", (void *)paramsType1);
+  appendCv(paramsType1, (char)wasm_f32);
+  CharVec *resultsType1 = cvCreate();
+  // printf("resultsType1 <- %p\n", (void *)resultsType1);
+  addFunctionType(typesSection, paramsType1, resultsType1);
 
   return typesSection;
 }

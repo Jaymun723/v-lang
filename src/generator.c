@@ -79,8 +79,26 @@ void writeWasmImportSection(FILE *file, WasmImportSection *section) {
   }
 }
 
+int sizeWasmFunctionSection(WasmFunctionSection *section) {
+  return sizeCv(section->types);
+}
+
+void writeWasmFunctionSection(FILE *file, WasmFunctionSection *section) {
+  fputc(section->id, file);
+  fputc(sizeWasmFunctionSection(section), file);
+  writeCv(file, section->types);
+}
+
+void writeWasmStartSection(FILE *file, WasmStartSection *section) {
+  fputc(section->id, file);
+  fputc(0x01, file);
+  fputc(section->index, file);
+}
+
 void writeModule(FILE *file, WasmModule *module) {
   writeHead(file);
   writeWasmTypeSection(file, module->typesSection);
   writeWasmImportSection(file, module->importSection);
+  writeWasmFunctionSection(file, module->functionSection);
+  writeWasmStartSection(file, module->startSection);
 }
