@@ -51,4 +51,8 @@ test-%: $(OBJS)
 clean:
 	rm -rf $(BUILD_DIR)
 
+gen: test-generator
+	hd test.wasm > test.hd.txt
+	$(HOME)/code/wabt/bin/wasm2wat test.wasm -o test.wat
+
 .PHONY: all run clean

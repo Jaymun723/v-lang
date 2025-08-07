@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include <stdio.h>
 
 int stringLength(const char *string);
 
@@ -19,3 +20,5 @@ bool isInteger(const char *str);
 int *readInteger(const char *str, int start, int end);
 bool isFloating(const char *str);
 double *readFloating(const char *str, int start, int end);
+
+void writeString(FILE *file, const char *str);

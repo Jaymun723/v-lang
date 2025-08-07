@@ -130,3 +130,9 @@ double *readFloating(const char *str, int start, int end) {
   *res = *res + 0.1 * rest;
   return res;
 }
+
+void writeString(FILE *file, const char *str) {
+  int n = stringLength(str);
+  fputc(n, file);
+  fputs(str, file);
+}
