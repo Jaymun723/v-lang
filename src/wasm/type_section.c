@@ -6,10 +6,10 @@
 
 void freeFunctionType(WasmFunctionType *funcType) {
   // printf("freeing funcTyp -> %p\n", (void *)funcType);
-  // printf("going to free params at: %p\n", (void *)funcType->params);
-  freeCv(funcType->params);
-  // printf("going to free results at: %p\n", (void *)funcType->results);
-  freeCv(funcType->results);
+  // printf("going to free param at: %p\n", (void *)funcType->param);
+  freeCv(funcType->param);
+  // printf("going to free result at: %p\n", (void *)funcType->result);
+  freeCv(funcType->result);
   if (funcType->next != NULL) {
     freeFunctionType(funcType->next);
   }
@@ -18,14 +18,14 @@ void freeFunctionType(WasmFunctionType *funcType) {
 
 void fprintfFunctionType(FILE *channel, WasmFunctionType *funcType) {
   fprintf(channel, " (type (func");
-  if (funcType->params->length != 0) {
+  if (funcType->param->length != 0) {
     fprintf(channel, " (param ");
-    fprintfCv(channel, funcType->params, true);
+    fprintfCv(channel, funcType->param, true);
     fprintf(channel, ")");
   }
-  if (funcType->results->length != 0) {
+  if (funcType->result->length != 0) {
     fprintf(channel, " (result ");
-    fprintfCv(channel, funcType->results, true);
+    fprintfCv(channel, funcType->result, true);
     fprintf(channel, ")");
   }
   fprintf(channel, "))");
@@ -35,13 +35,13 @@ void fprintfFunctionType(FILE *channel, WasmFunctionType *funcType) {
   }
 }
 
-void addFunctionType(WasmTypesSection *section, CharVec *params,
-                     CharVec *results) {
+void addFunctionType(WasmTypeSection *section, CharVec *param,
+                     CharVec *result) {
   WasmFunctionType *funcType =
       (WasmFunctionType *)malloc(sizeof(WasmFunctionType));
   funcType->id = 0x60;
-  funcType->params = params;
-  funcType->results = results;
+  funcType->param = param;
+  funcType->result = result;
   funcType->next = NULL;
 
   if (section->numTypes == 0) {
@@ -55,20 +55,20 @@ void addFunctionType(WasmTypesSection *section, CharVec *params,
   // printf("New functionType: <- %p\n", (void *)funcType);
 }
 
-WasmTypesSection *createDefaultTypesSection() {
-  WasmTypesSection *typesSection =
-      (WasmTypesSection *)malloc(sizeof(WasmTypesSection));
-  typesSection->id = 0x01;
-  typesSection->numTypes = 0;
-  typesSection->funcTypesHead = NULL;
-  typesSection->funcTypesTail = NULL;
+WasmTypeSection *createDefaultTypeSection() {
+  WasmTypeSection *typeSection =
+      (WasmTypeSection *)malloc(sizeof(WasmTypeSection));
+  typeSection->id = 0x01;
+  typeSection->numTypes = 0;
+  typeSection->funcTypesHead = NULL;
+  typeSection->funcTypesTail = NULL;
 
   // () -> ()
   CharVec *paramsType0 = cvCreate();
   // printf("paramsType0 <- %p\n", (void *)paramsType0);
   CharVec *resultsType0 = cvCreate();
   // printf("resultsType0 <- %p\n", (void *)resultsType0);
-  addFunctionType(typesSection, paramsType0, resultsType0);
+  addFunctionType(typeSection, paramsType0, resultsType0);
 
   // i32 -> ()
   CharVec *paramsType1 = cvCreate();
@@ -76,41 +76,41 @@ WasmTypesSection *createDefaultTypesSection() {
   appendCv(paramsType1, (char)wasm_f32);
   CharVec *resultsType1 = cvCreate();
   // printf("resultsType1 <- %p\n", (void *)resultsType1);
-  addFunctionType(typesSection, paramsType1, resultsType1);
+  addFunctionType(typeSection, paramsType1, resultsType1);
 
-  return typesSection;
+  return typeSection;
 }
 
-void freeWasmTypesSection(WasmTypesSection *section) {
+void freeWasmTypeSection(WasmTypeSection *section) {
   if (section->funcTypesHead != NULL) {
     freeFunctionType(section->funcTypesHead);
   }
   free(section);
 }
 
-void fprintfWasmTypeSection(FILE *channel, WasmTypesSection *section) {
+void fprintfWasmTypeSection(FILE *channel, WasmTypeSection *section) {
   if (section->funcTypesHead != NULL) {
     fprintfFunctionType(channel, section->funcTypesHead);
   }
 }
 
 int sizeWasmFunctionType(WasmFunctionType *funcType) {
-  int size = 2; // at least num params, num results
-  size += funcType->params->length;
-  size += funcType->results->length;
+  int size = 2; // at least num param, num result
+  size += funcType->param->length;
+  size += funcType->result->length;
   return size;
 }
 
 void writeFunctionType(FILE *file, WasmFunctionType *funcType) {
   fputc(funcType->id, file);
-  writeCv(file, funcType->params);
-  writeCv(file, funcType->results);
+  writeCv(file, funcType->param);
+  writeCv(file, funcType->result);
   if (funcType->next != NULL) {
     writeFunctionType(file, funcType->next);
   }
 }
 
-int sizeWasmTypesSection(WasmTypesSection *section) {
+int sizeWasmTypeSection(WasmTypeSection *section) {
   int size = 1;
   for (WasmFunctionType *funcType = section->funcTypesHead; funcType != NULL;
        funcType = funcType->next) {
@@ -119,9 +119,9 @@ int sizeWasmTypesSection(WasmTypesSection *section) {
   return size;
 }
 
-void writeWasmTypeSection(FILE *file, WasmTypesSection *section) {
+void writeWasmTypeSection(FILE *file, WasmTypeSection *section) {
   fputc(section->id, file);
-  fputc(sizeWasmTypesSection(section), file);
+  fputc(sizeWasmTypeSection(section), file);
   fputc(section->numTypes, file);
   writeFunctionType(file, section->funcTypesHead);
 }

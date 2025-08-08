@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 typedef struct WasmModule {
-  WasmTypesSection *typesSection;
+  WasmTypeSection *typesSection;
   WasmImportSection *importSection;
   WasmFunctionSection *functionSection;
   WasmStartSection *startSection;

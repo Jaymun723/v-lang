@@ -9,20 +9,20 @@ typedef enum WasmValueTypeCode {
 typedef struct WasmFunctionType {
   char id;
 
-  CharVec *params;
-  CharVec *results;
+  CharVec *param;
+  CharVec *result;
 
   struct WasmFunctionType *next;
 } WasmFunctionType;
 
-typedef struct WasmTypesSection {
+typedef struct WasmTypeSection {
   char id;
   int numTypes;
   WasmFunctionType *funcTypesHead;
   WasmFunctionType *funcTypesTail;
-} WasmTypesSection;
+} WasmTypeSection;
 
-WasmTypesSection *createDefaultTypesSection();
-void freeWasmTypesSection(WasmTypesSection *section);
-void fprintfWasmTypeSection(FILE *channel, WasmTypesSection *section);
-void writeWasmTypeSection(FILE *file, WasmTypesSection *section);
+WasmTypeSection *createDefaultTypeSection();
+void freeWasmTypeSection(WasmTypeSection *section);
+void fprintfWasmTypeSection(FILE *channel, WasmTypeSection *section);
+void writeWasmTypeSection(FILE *file, WasmTypeSection *section);

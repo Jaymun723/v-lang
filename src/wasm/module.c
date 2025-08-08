@@ -4,7 +4,7 @@
 WasmModule *createModule() {
   WasmModule *module = (WasmModule *)malloc(sizeof(WasmModule));
   // module->typesSection = NULL;
-  module->typesSection = createDefaultTypesSection();
+  module->typesSection = createDefaultTypeSection();
   module->importSection = createDefaultImportSection();
   module->functionSection = createDefaultWasmFunctionSection();
   module->startSection = createDefaultWasmStartSection();
@@ -41,7 +41,7 @@ void printfWasmModule(WasmModule *module) { fprintfWasmModule(stdout, module); }
 
 void freeWasmModule(WasmModule *module) {
   if (module->typesSection != NULL) {
-    freeWasmTypesSection(module->typesSection);
+    freeWasmTypeSection(module->typesSection);
   }
   if (module->importSection != NULL) {
     freeWasmImportSection(module->importSection);
