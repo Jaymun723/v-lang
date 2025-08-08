@@ -67,3 +67,41 @@ void freeWasmImportSection(WasmImportSection *section) {
   }
   free(section);
 }
+
+int sizeWasmImport(WasmImport *import) {
+  int size = 2;
+  size += 1 + stringLength(import->mod);
+  size += 1 + stringLength(import->name);
+  return size;
+}
+
+void writeWasmImport(FILE *file, WasmImport *import) {
+  writeString(file, import->mod);
+  writeString(file, import->name);
+  fputc(import->importType, file);
+  fputc(import->index, file);
+
+  if (import->next != NULL) {
+    writeWasmImport(file, import->next);
+  }
+}
+
+int sizeWasmImportSection(WasmImportSection *section) {
+  int size = 1;
+  for (WasmImport *import = section->importHead; import != NULL;
+       import = import->next) {
+    size += sizeWasmImport(import);
+  }
+  return size;
+}
+
+void writeWasmImportSection(FILE *file, WasmImportSection *section) {
+  fputc(section->id, file);
+  int size = sizeWasmImportSection(section);
+  // printf("sizeWasmImportSection=%d\n", size);
+  fputc(size, file);
+  fputc(section->numImports, file);
+  if (section->numImports != 0) {
+    writeWasmImport(file, section->importHead);
+  }
+}

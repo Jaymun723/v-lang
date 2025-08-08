@@ -57,3 +57,19 @@ void freeWasmModule(WasmModule *module) {
   }
   free(module);
 }
+
+void writeHead(FILE *file) {
+  char magic_number[] = {0x00, 0x61, 0x73, 0x6d};
+  fwrite(magic_number, sizeof(char), 4, file);
+  char version[] = {0x01, 0x00, 0x00, 0x00};
+  fwrite(version, sizeof(char), 4, file);
+}
+
+void writeModule(FILE *file, WasmModule *module) {
+  writeHead(file);
+  writeWasmTypeSection(file, module->typesSection);
+  writeWasmImportSection(file, module->importSection);
+  writeWasmFunctionSection(file, module->functionSection);
+  writeWasmStartSection(file, module->startSection);
+  writeWasmCodeSection(file, module->codeSection);
+}

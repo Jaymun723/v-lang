@@ -21,3 +21,4 @@ typedef struct WasmCodeSection {
 WasmCodeSection *createDefaultWasmCodeSection();
 void fprintfWasmCodeSection(FILE *channel, WasmCodeSection *section);
 void freeWasmCodeSection(WasmCodeSection *section);
+void writeWasmCodeSection(FILE *file, WasmCodeSection *section);

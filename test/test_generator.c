@@ -1,4 +1,3 @@
-#include "generator.h"
 #include "test_framework.h"
 #include "wasm/module.h"
 

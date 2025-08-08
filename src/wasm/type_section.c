@@ -93,3 +93,35 @@ void fprintfWasmTypeSection(FILE *channel, WasmTypesSection *section) {
     fprintfFunctionType(channel, section->funcTypesHead);
   }
 }
+
+int sizeWasmFunctionType(WasmFunctionType *funcType) {
+  int size = 2; // at least num params, num results
+  size += funcType->params->length;
+  size += funcType->results->length;
+  return size;
+}
+
+void writeFunctionType(FILE *file, WasmFunctionType *funcType) {
+  fputc(funcType->id, file);
+  writeCv(file, funcType->params);
+  writeCv(file, funcType->results);
+  if (funcType->next != NULL) {
+    writeFunctionType(file, funcType->next);
+  }
+}
+
+int sizeWasmTypesSection(WasmTypesSection *section) {
+  int size = 1;
+  for (WasmFunctionType *funcType = section->funcTypesHead; funcType != NULL;
+       funcType = funcType->next) {
+    size += 1 + sizeWasmFunctionType(funcType);
+  }
+  return size;
+}
+
+void writeWasmTypeSection(FILE *file, WasmTypesSection *section) {
+  fputc(section->id, file);
+  fputc(sizeWasmTypesSection(section), file);
+  fputc(section->numTypes, file);
+  writeFunctionType(file, section->funcTypesHead);
+}

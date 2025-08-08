@@ -23,3 +23,13 @@ void fprintfWasmFunctionSection(FILE *channel, WasmFunctionSection *section) {
   fprintfCv(channel, section->types, true);
   fprintf(channel, "]");
 }
+
+int sizeWasmFunctionSection(WasmFunctionSection *section) {
+  return sizeCv(section->types);
+}
+
+void writeWasmFunctionSection(FILE *file, WasmFunctionSection *section) {
+  fputc(section->id, file);
+  fputc(sizeWasmFunctionSection(section), file);
+  writeCv(file, section->types);
+}

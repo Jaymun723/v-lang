@@ -21,3 +21,4 @@ typedef struct WasmImportSection {
 WasmImportSection *createDefaultImportSection();
 void fprintfWasmImportSection(FILE *channel, WasmImportSection *section);
 void freeWasmImportSection(WasmImportSection *section);
+void writeWasmImportSection(FILE *file, WasmImportSection *section);

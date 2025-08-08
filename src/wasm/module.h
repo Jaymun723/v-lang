@@ -18,3 +18,5 @@ WasmModule *createModule();
 void fprintfWasmModule(FILE *channel, WasmModule *module);
 void printfWasmModule(WasmModule *module);
 void freeWasmModule(WasmModule *module);
+
+void writeModule(FILE *file, WasmModule *module);

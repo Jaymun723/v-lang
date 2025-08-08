@@ -70,3 +70,33 @@ void freeWasmCodeSection(WasmCodeSection *section) {
   }
   free(section);
 }
+
+int sizeWasmCode(WasmCode *code) {
+  return sizeCv(code->locals) + code->body->length;
+}
+
+void writeWasmCode(FILE *file, WasmCode *code) {
+  fputc(sizeWasmCode(code), file);
+  writeCv(file, code->locals);
+  writeRawCv(file, code->body);
+  if (code->next != NULL) {
+    writeWasmCode(file, code->next);
+  }
+}
+
+int sizeWasmCodeSection(WasmCodeSection *section) {
+  int size = 1;
+  for (WasmCode *code = section->codeHead; code != NULL; code = code->next) {
+    size += 1 + sizeWasmCode(code);
+  }
+  return size;
+}
+
+void writeWasmCodeSection(FILE *file, WasmCodeSection *section) {
+  fputc(section->id, file);
+  fputc(sizeWasmCodeSection(section), file);
+  fputc(section->numCodes, file);
+  if (section->numCodes != 0) {
+    writeWasmCode(file, section->codeHead);
+  }
+}

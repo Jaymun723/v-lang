@@ -25,3 +25,4 @@ typedef struct WasmTypesSection {
 WasmTypesSection *createDefaultTypesSection();
 void freeWasmTypesSection(WasmTypesSection *section);
 void fprintfWasmTypeSection(FILE *channel, WasmTypesSection *section);
+void writeWasmTypeSection(FILE *file, WasmTypesSection *section);

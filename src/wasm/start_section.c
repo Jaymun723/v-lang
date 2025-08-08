@@ -16,3 +16,9 @@ void freeWasmStartSection(WasmStartSection *section) { free(section); }
 void fprintfWasmStartSection(FILE *channel, WasmStartSection *section) {
   fprintf(channel, " (start %d)", section->index);
 }
+
+void writeWasmStartSection(FILE *file, WasmStartSection *section) {
+  fputc(section->id, file);
+  fputc(0x01, file);
+  fputc(section->index, file);
+}

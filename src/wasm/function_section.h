@@ -10,3 +10,4 @@ typedef struct WasmFunctionSection {
 WasmFunctionSection *createDefaultWasmFunctionSection();
 void freeWasmFunctionSection(WasmFunctionSection *section);
 void fprintfWasmFunctionSection(FILE *channel, WasmFunctionSection *section);
+void writeWasmFunctionSection(FILE *file, WasmFunctionSection *section);
