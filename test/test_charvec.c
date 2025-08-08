@@ -10,7 +10,19 @@ int main() {
   appendCv(cv, 0x73);
   appendCv(cv, 0x6d);
 
-  cvPrint(cv);
+  TEST_ASSERT(sizeCv(cv) == 5);
+  const char *filename = "out/testcharcev";
+  FILE *file = fopen(filename, "wb");
+  writeCv(file, cv);
+  fclose(file);
+  file = fopen(filename, "rb");
+  char expectedBytes[] = {0x04, 0x00, 0x61, 0x73, 0x6d};
+  for (int i = 5; i < sizeCv(cv); i++) {
+    TEST_ASSERT(fgetc(file) == expectedBytes[i]);
+  }
+  fclose(file);
+  remove(filename);
+
   freeCv(cv);
 
   TEST_PASS("All charvec tests passed!");

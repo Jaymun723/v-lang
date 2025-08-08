@@ -3,15 +3,14 @@
 #include <stdio.h>
 
 typedef struct CharVec {
-  int capacity;
-  int length;
+  unsigned int capacity;
+  unsigned int length;
   char *data;
 } CharVec;
 
 CharVec *cvCreate();
 void freeCv(CharVec *charVec);
-void cvFprintf(FILE *channel, CharVec *charVec);
-void cvPrint(CharVec *charVec);
+void printfCv(CharVec *charVec);
 void fprintfCv(FILE *channel, CharVec *cv, bool oneLine);
 
 void appendCv(CharVec *charVec, char c);

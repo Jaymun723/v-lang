@@ -1,4 +1,5 @@
 #include "charvec.h"
+#include "leb128.h"
 #include <stdlib.h>
 
 CharVec *cvCreate() {
@@ -14,19 +15,7 @@ void freeCv(CharVec *charVec) {
   free(charVec);
 }
 
-void cvFprintf(FILE *channel, CharVec *charVec) {
-  fprintf(channel, "CharVec(");
-  for (int i = 0; i < charVec->length; i++) {
-    fprintf(channel, "%02hhx", charVec->data[i]);
-    if (i + 1 == charVec->length) {
-      fprintf(channel, ")\n");
-    } else {
-      fprintf(channel, ", ");
-    }
-  }
-}
-
-void cvPrint(CharVec *charVec) { cvFprintf(stdout, charVec); }
+void printfCv(CharVec *charVec) { fprintfCv(stdout, charVec, false); }
 
 void fprintfCv(FILE *channel, CharVec *cv, bool oneLine) {
   for (int i = 0; i < cv->length; i++) {
@@ -86,7 +75,7 @@ char getCv(CharVec *cv, int i) {
 }
 
 void writeCv(FILE *file, CharVec *cv) {
-  fputc(cv->length, file);
+  writeULEB128(file, cv->length);
   writeRawCv(file, cv);
 }
 
@@ -96,4 +85,4 @@ void writeRawCv(FILE *file, CharVec *cv) {
   }
 }
 
-int sizeCv(CharVec *cv) { return 1 + cv->length; }
+int sizeCv(CharVec *cv) { return sizeULEB128(cv->length) + cv->length; }
