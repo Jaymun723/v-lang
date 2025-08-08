@@ -3,7 +3,7 @@
 
 typedef struct WasmStartSection {
   char id;
-  int index;
+  unsigned int index;
 } WasmStartSection;
 
 WasmStartSection *createDefaultWasmStartSection();

@@ -5,14 +5,14 @@ typedef struct WasmImport {
   char *mod;
   char *name;
   char importType;
-  int index;
+  unsigned int index;
 
   struct WasmImport *next;
 } WasmImport;
 
 typedef struct WasmImportSection {
   char id;
-  int numImports;
+  unsigned int numImports;
 
   WasmImport *importHead;
   WasmImport *importTail;

@@ -1,4 +1,6 @@
 #include "function_section.h"
+#include "../common.h"
+#include "../leb128.h"
 #include <stdlib.h>
 
 WasmFunctionSection *createDefaultWasmFunctionSection() {
@@ -29,7 +31,7 @@ int sizeWasmFunctionSection(WasmFunctionSection *section) {
 }
 
 void writeWasmFunctionSection(FILE *file, WasmFunctionSection *section) {
-  fputc(section->id, file);
-  fputc(sizeWasmFunctionSection(section), file);
+  writeByte(file, section->id);
+  writeULEB128(file, sizeWasmFunctionSection(section));
   writeCv(file, section->types);
 }

@@ -1,4 +1,6 @@
 #include "mystring.h"
+#include "common.h"
+#include "leb128.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -133,6 +135,8 @@ double *readFloating(const char *str, int start, int end) {
 
 void writeString(FILE *file, const char *str) {
   int n = stringLength(str);
-  fputc(n, file);
-  fputs(str, file);
+  writeULEB128(file, n);
+  for (int i = 0; i < n; i++) {
+    writeByte(file, str[i]);
+  }
 }

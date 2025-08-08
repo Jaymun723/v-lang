@@ -12,7 +12,7 @@ typedef struct WasmCode {
 typedef struct WasmCodeSection {
   char id;
 
-  int numCodes;
+  unsigned int numCodes;
 
   WasmCode *codeHead;
   WasmCode *codeTail;

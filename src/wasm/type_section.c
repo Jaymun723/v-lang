@@ -1,4 +1,6 @@
 #include "type_section.h"
+#include "../common.h"
+#include "../leb128.h"
 #include "../mystring.h"
 #include "function_section.h"
 #include <stdio.h>
@@ -120,8 +122,8 @@ int sizeWasmTypeSection(WasmTypeSection *section) {
 }
 
 void writeWasmTypeSection(FILE *file, WasmTypeSection *section) {
-  fputc(section->id, file);
-  fputc(sizeWasmTypeSection(section), file);
-  fputc(section->numTypes, file);
+  writeByte(file, section->id);
+  writeULEB128(file, sizeWasmTypeSection(section));
+  writeULEB128(file, section->numTypes);
   writeFunctionType(file, section->funcTypesHead);
 }

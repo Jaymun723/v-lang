@@ -1,4 +1,6 @@
 #include "start_section.h"
+#include "../common.h"
+#include "../leb128.h"
 #include <stdlib.h>
 
 WasmStartSection *createDefaultWasmStartSection() {
@@ -18,7 +20,7 @@ void fprintfWasmStartSection(FILE *channel, WasmStartSection *section) {
 }
 
 void writeWasmStartSection(FILE *file, WasmStartSection *section) {
-  fputc(section->id, file);
-  fputc(0x01, file);
-  fputc(section->index, file);
+  writeByte(file, section->id);
+  writeULEB128(file, 1);
+  writeULEB128(file, section->index);
 }

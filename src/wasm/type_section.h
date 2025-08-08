@@ -17,7 +17,7 @@ typedef struct WasmFunctionType {
 
 typedef struct WasmTypeSection {
   char id;
-  int numTypes;
+  unsigned int numTypes;
   WasmFunctionType *funcTypesHead;
   WasmFunctionType *funcTypesTail;
 } WasmTypeSection;

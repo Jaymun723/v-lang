@@ -1,4 +1,5 @@
 #include "charvec.h"
+#include "common.h"
 #include "leb128.h"
 #include <stdlib.h>
 
@@ -75,7 +76,7 @@ void writeCv(FILE *file, CharVec *cv) {
 
 void writeRawCv(FILE *file, CharVec *cv) {
   for (unsigned int i = 0; i < cv->length; i++) {
-    fputc(cv->data[i], file);
+    writeByte(file, cv->data[i]);
   }
 }
 

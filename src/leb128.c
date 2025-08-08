@@ -1,4 +1,5 @@
 #include "leb128.h"
+#include "common.h"
 #include <stdbool.h>
 
 // best way according to https://stackoverflow.com/a/40844126
@@ -43,7 +44,7 @@ int sizeLEB128(int value) {
 
 void writeULEB128(FILE *file, unsigned int value) {
   if (value == 0) {
-    fputc(0, file);
+    writeByte(file, 0);
   }
   while (value != 0) {
     char sevenFirstBits = value & 0x7f;
@@ -52,7 +53,7 @@ void writeULEB128(FILE *file, unsigned int value) {
     if (value != 0) {
       sevenFirstBits |= 0x80; // add a one if now the most significant
     }
-    fputc(sevenFirstBits, file);
+    writeByte(file, sevenFirstBits);
   }
 }
 
@@ -81,6 +82,6 @@ void writeSLEB128(FILE *file, int value) {
     } else {
       byte |= 0x80; /* set high-order bit of byte */
     }
-    fputc(byte, file);
+    writeByte(file, byte);
   }
 }

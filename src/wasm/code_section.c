@@ -1,4 +1,6 @@
 #include "code_section.h"
+#include "../common.h"
+#include "../leb128.h"
 #include <stdlib.h>
 
 void addWasmCode(WasmCodeSection *section, CharVec *locals, CharVec *body) {
@@ -76,7 +78,7 @@ int sizeWasmCode(WasmCode *code) {
 }
 
 void writeWasmCode(FILE *file, WasmCode *code) {
-  fputc(sizeWasmCode(code), file);
+  writeULEB128(file, sizeWasmCode(code));
   writeCv(file, code->locals);
   writeRawCv(file, code->body);
   if (code->next != NULL) {
@@ -93,9 +95,9 @@ int sizeWasmCodeSection(WasmCodeSection *section) {
 }
 
 void writeWasmCodeSection(FILE *file, WasmCodeSection *section) {
-  fputc(section->id, file);
-  fputc(sizeWasmCodeSection(section), file);
-  fputc(section->numCodes, file);
+  writeByte(file, section->id);
+  writeULEB128(file, sizeWasmCodeSection(section));
+  writeULEB128(file, section->numCodes);
   if (section->numCodes != 0) {
     writeWasmCode(file, section->codeHead);
   }

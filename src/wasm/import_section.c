@@ -1,4 +1,6 @@
 #include "import_section.h"
+#include "../common.h"
+#include "../leb128.h"
 #include "../mystring.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,7 +81,7 @@ void writeWasmImport(FILE *file, WasmImport *import) {
   writeString(file, import->mod);
   writeString(file, import->name);
   fputc(import->importType, file);
-  fputc(import->index, file);
+  writeULEB128(file, import->index);
 
   if (import->next != NULL) {
     writeWasmImport(file, import->next);
@@ -96,11 +98,9 @@ int sizeWasmImportSection(WasmImportSection *section) {
 }
 
 void writeWasmImportSection(FILE *file, WasmImportSection *section) {
-  fputc(section->id, file);
-  int size = sizeWasmImportSection(section);
-  // printf("sizeWasmImportSection=%d\n", size);
-  fputc(size, file);
-  fputc(section->numImports, file);
+  writeByte(file, section->id);
+  writeULEB128(file, sizeWasmImportSection(section));
+  writeULEB128(file, section->numImports);
   if (section->numImports != 0) {
     writeWasmImport(file, section->importHead);
   }
