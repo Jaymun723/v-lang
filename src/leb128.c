@@ -27,7 +27,10 @@ int binaryLength(int n) {
   return i;
 }
 
-int sizeULEB128(int value) {
+int sizeLEB128(int value) {
+  if (value == 0) {
+    return 1;
+  }
   if (value < 0) {
     value = -value;
   }

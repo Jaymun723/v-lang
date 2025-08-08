@@ -2,11 +2,13 @@
 #include "test_framework.h"
 
 int main() {
+  TEST_ASSERT(sizeLEB128(0) == 1);
+
   const char *filename = "out/testleb128";
   FILE *file = fopen(filename, "wb");
   int n = 624485;
   writeULEB128(file, n);
-  TEST_ASSERT(sizeULEB128(n) == 3);
+  TEST_ASSERT(sizeLEB128(n) == 3);
   fclose(file);
   file = fopen(filename, "rb");
   char expectedUBytes[] = {(char)0xe5, (char)0x8e, 0x26};
@@ -18,7 +20,7 @@ int main() {
   file = fopen(filename, "wb");
   n = -123456;
   writeSLEB128(file, n);
-  TEST_ASSERT(sizeULEB128(n) == 3);
+  TEST_ASSERT(sizeLEB128(n) == 3);
   fclose(file);
   file = fopen(filename, "rb");
   char expectedSBytes[] = {(char)0xc0, (char)0xbb, 0x78};

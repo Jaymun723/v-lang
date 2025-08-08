@@ -15,8 +15,8 @@ void fprintfCv(FILE *channel, CharVec *cv, bool oneLine);
 
 void appendCv(CharVec *charVec, char c);
 void addCv(CharVec *charVec, char *c, int n);
-void setCv(CharVec *cv, int i, char c);
-char getCv(CharVec *cv, int i);
+void setCv(CharVec *cv, unsigned int i, char c);
+char getCv(CharVec *cv, unsigned int i);
 
 void writeCv(FILE *file, CharVec *c);
 void writeRawCv(FILE *file, CharVec *c);

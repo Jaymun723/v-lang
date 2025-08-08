@@ -18,7 +18,7 @@ void freeCv(CharVec *charVec) {
 void printfCv(CharVec *charVec) { fprintfCv(stdout, charVec, false); }
 
 void fprintfCv(FILE *channel, CharVec *cv, bool oneLine) {
-  for (int i = 0; i < cv->length; i++) {
+  for (unsigned int i = 0; i < cv->length; i++) {
     fprintf(channel, "0x%02hhx", cv->data[i]);
     if (i + 1 == cv->length) {
       if (!oneLine) {
@@ -36,7 +36,7 @@ void appendCv(CharVec *charVec, char c) {
   if (charVec->length == charVec->capacity) {
     charVec->capacity = 2 * charVec->length;
     char *new_data = (char *)malloc(sizeof(char) * charVec->capacity);
-    for (int i = 0; i < charVec->length; i++) {
+    for (unsigned int i = 0; i < charVec->length; i++) {
       new_data[i] = charVec->data[i];
     }
     free(charVec->data);
@@ -50,11 +50,8 @@ void addCv(CharVec *charVec, char *c, int n) {
   }
 }
 
-void setCv(CharVec *cv, int i, char c) {
-  if (i < 0) {
-    fprintf(stderr, "setCv: negative i.\n");
-    return;
-  } else if (i >= cv->length) {
+void setCv(CharVec *cv, unsigned int i, char c) {
+  if (i >= cv->length) {
     fprintf(stderr, "setCv: indexing outside of the charVector: %d >= %d.\n", i,
             cv->length);
     return;
@@ -62,11 +59,8 @@ void setCv(CharVec *cv, int i, char c) {
   cv->data[i] = c;
 }
 
-char getCv(CharVec *cv, int i) {
-  if (i < 0) {
-    fprintf(stderr, "getCv: negative i.\n");
-    return 0x00;
-  } else if (i >= cv->length) {
+char getCv(CharVec *cv, unsigned int i) {
+  if (i >= cv->length) {
     fprintf(stderr, "getCv: indexing outside of the charVector: %d >= %d.\n", i,
             cv->length);
     return 0x00;
@@ -80,9 +74,9 @@ void writeCv(FILE *file, CharVec *cv) {
 }
 
 void writeRawCv(FILE *file, CharVec *cv) {
-  for (int i = 0; i < cv->length; i++) {
+  for (unsigned int i = 0; i < cv->length; i++) {
     fputc(cv->data[i], file);
   }
 }
 
-int sizeCv(CharVec *cv) { return sizeULEB128(cv->length) + cv->length; }
+int sizeCv(CharVec *cv) { return sizeLEB128(cv->length) + cv->length; }
