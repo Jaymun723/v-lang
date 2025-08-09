@@ -17,13 +17,26 @@ void tklAppend(TokenList *list, TokenType type, void *value) {
   tok->next = NULL;
   tok->prev = NULL;
 
-  if (type == EndOfFile || type == Newline || type == OpenParent ||
-      type == CloseParent) {
+  switch (type) {
+  case TokenMinus:
+  case TokenAdd:
+  case TokenMult:
+  case TokenDiv:
+  case TokenMod:
+  case TokenOpenParent:
+  case TokenCloseParent:
+  case TokenSemi:
+  case TokenNewline:
+  case TokenEndOfFile:
     tok->value = NULL;
-  } else if (type == Space || tok->type == Word || tok->type == Keyword ||
-             tok->type == Integer || tok->type == Floating) {
+    break;
+  case TokenIdentifier:
+  case TokenInteger:
+  case TokenFloating:
+  case TokenSpace:
     tok->value = value;
-  } else {
+    break;
+  default:
     fprintf(stderr, "tklAppend: Unknow Token type: %d.\n", type);
     free(tok);
     return;
@@ -39,66 +52,64 @@ void tklAppend(TokenList *list, TokenType type, void *value) {
   list->length++;
 }
 
-void tokenFree(Token *tok, bool freeValue) {
-  if (freeValue) {
-    if (tok->type == Word || tok->type == Keyword || tok->type == Floating ||
-        tok->type == Integer) {
+void freeToken(Token *tok, bool freeValue) {
+  switch (tok->type) {
+  case TokenIdentifier:
+  case TokenInteger:
+  case TokenFloating:
+    if (freeValue) {
       free(tok->value);
     }
+    break;
+  default:
+    break;
   }
+  // if (tok->next != NULL) {
+  //   freeToken(tok->next, freeValue);
+  // }
   free(tok);
 }
 
-void tklFree(TokenList *list, bool freeTokensValue) {
+void freeTkl(TokenList *list, bool freeTokensValue) {
   if (list->length == 0) {
     free(list);
     return;
   }
+  // if (list->head != NULL) {
+  //   freeToken(list->head, freeTokensValue);
+  // }
   Token *tok = list->head;
   while (tok != NULL) {
     Token *toFree = tok;
     tok = tok->next;
-    tokenFree(toFree, freeTokensValue);
+    freeToken(toFree, freeTokensValue);
   }
   free(list);
 }
 
-void tokenFprintf(FILE *channel, Token *tok) {
+void fprintfToken(FILE *channel, Token *tok) {
   if (tok == NULL) {
     fprintf(stderr, "NULL\n");
     return;
   }
-  fprintf(channel, "Token(");
-  if (tok->type == Space) {
-    fprintf(channel, "Space(%ld)", (intptr_t)tok->value);
-  } else if (tok->type == EndOfFile) {
-    fprintf(channel, "<EOF>");
-  } else if (tok->type == Newline) {
-    fprintf(channel, "\\n");
-  } else if (tok->type == OpenParent) {
-    fprintf(channel, "\"(\"");
-  } else if (tok->type == CloseParent) {
-    fprintf(channel, "\")\"");
-  } else if (tok->type == Word) {
-    fprintf(channel, "Word(\"%s\")", (char *)tok->value);
-  } else if (tok->type == Keyword) {
-    int keyword_index = (intptr_t)tok->value;
-    fprintf(channel, "%s", KEYWORD_TYPE_STRING[keyword_index]);
-  } else if (tok->type == Floating) {
-    double value = *((double *)tok->value);
-    fprintf(channel, "%.4f", value);
-  } else if (tok->type == Integer) {
+  fprintf(channel, "Token(%s", TOKEN_TYPE_STRING[tok->type]);
+  if (tok->type == TokenInteger) {
     int value = *((int *)tok->value);
-    fprintf(channel, "%d", value);
-  } else {
-    fprintf(stderr, "tokenPrint: Unknow Token type: %d.\n", tok->type);
+    fprintf(channel, "(%d)", value);
+  } else if (tok->type == TokenFloating) {
+    double value = *((double *)tok->value);
+    fprintf(channel, "(%.4f)", value);
+  } else if (tok->type == TokenIdentifier) {
+    fprintf(channel, "(%s)", (char *)tok->value);
+  } else if (tok->type == TokenSpace) {
+    fprintf(channel, "(%ld)", (intptr_t)tok->value);
   }
   fprintf(channel, ")");
 }
 
-void tokenPrintf(Token *tok) { tokenFprintf(stdout, tok); }
+void printfToken(Token *tok) { fprintfToken(stdout, tok); }
 
-void tklPrint(TokenList *tkl) {
+void printfTkl(TokenList *tkl) {
   if (tkl->length == 0) {
     printf("TokenList(length=0)\n");
     return;
@@ -107,7 +118,7 @@ void tklPrint(TokenList *tkl) {
   printf("TokenList(length=%d,\n", tkl->length);
   for (Token *tok = tkl->head; tok != NULL; tok = tok->next) {
     printf("  ");
-    tokenPrintf(tok);
+    printfToken(tok);
     printf(",\n");
   }
   printf(")\n");
@@ -121,7 +132,7 @@ TokenList *tokenize(const char *sourceCode) {
   while (currentIndex <= sourceCodeLenght) {
     char c = sourceCode[currentIndex];
     if (c == '\0') {
-      tklAppend(tkl, EndOfFile, NULL);
+      tklAppend(tkl, TokenEndOfFile, NULL);
       currentIndex++;
     } else if (c == ' ') {
       int start = currentIndex;
@@ -129,15 +140,33 @@ TokenList *tokenize(const char *sourceCode) {
         currentIndex++;
       }
       intptr_t value = currentIndex - start;
-      tklAppend(tkl, Space, (char *)value);
+      tklAppend(tkl, TokenSpace, (char *)value);
     } else if (c == '\n') {
-      tklAppend(tkl, Newline, NULL);
+      tklAppend(tkl, TokenNewline, NULL);
       currentIndex++;
     } else if (c == '(') {
-      tklAppend(tkl, OpenParent, NULL);
+      tklAppend(tkl, TokenOpenParent, NULL);
       currentIndex++;
     } else if (c == ')') {
-      tklAppend(tkl, CloseParent, NULL);
+      tklAppend(tkl, TokenCloseParent, NULL);
+      currentIndex++;
+    } else if (c == '-') {
+      tklAppend(tkl, TokenMinus, NULL);
+      currentIndex++;
+    } else if (c == '+') {
+      tklAppend(tkl, TokenAdd, NULL);
+      currentIndex++;
+    } else if (c == '*') {
+      tklAppend(tkl, TokenMult, NULL);
+      currentIndex++;
+    } else if (c == '/') {
+      tklAppend(tkl, TokenDiv, NULL);
+      currentIndex++;
+    } else if (c == '%') {
+      tklAppend(tkl, TokenMod, NULL);
+      currentIndex++;
+    } else if (c == ';') {
+      tklAppend(tkl, TokenSemi, NULL);
       currentIndex++;
     } else if (isLetter(c)) {
       int start = currentIndex;
@@ -147,21 +176,7 @@ TokenList *tokenize(const char *sourceCode) {
       int l = currentIndex - start;
       char *word = stringCopyN(&sourceCode[start], l);
 
-      bool isKeyword = false;
-      for (int i = 0; i < KeywordTypeCount && !isKeyword; i++) {
-        int cmp = stringCmp(word, KEYWORD_TYPE_STRING[i]);
-        // printf("stringCmp(%s, %s)=%d\n", word, KEYWORD_TYPE_STRING[i], cmp);
-        if (cmp == 0) {
-          intptr_t value = (intptr_t)i;
-          tklAppend(tkl, Keyword, (void *)value);
-          isKeyword = true;
-          free(word);
-        }
-      }
-
-      if (!isKeyword) {
-        tklAppend(tkl, Word, word);
-      }
+      tklAppend(tkl, TokenIdentifier, word);
     } else if (isNum(c) || c == '.') {
       bool isFloating = c == '.';
       int start = currentIndex;
@@ -178,18 +193,77 @@ TokenList *tokenize(const char *sourceCode) {
       }
       if (isFloating) {
         double *value = readFloating(sourceCode, start, currentIndex);
-        tklAppend(tkl, Floating, (void *)value);
+        tklAppend(tkl, TokenFloating, (void *)value);
       } else {
         int *value = readInteger(sourceCode, start, currentIndex);
-        tklAppend(tkl, Integer, (void *)value);
+        tklAppend(tkl, TokenInteger, (void *)value);
       }
     } else {
       fprintf(stderr,
               "Unable to lex this character: \"%c\". Aborting lexing.\n", c);
-      tklFree(tkl, true);
+      freeTkl(tkl, true);
       return NULL;
     }
   }
 
   return tkl;
+}
+
+bool removeSpaces(TokenList *tkl) {
+  if (tkl->length == 0) {
+    return false;
+  }
+
+  Token *tok = tkl->head;
+  if (tok->type == TokenSpace) {
+    return true;
+  }
+
+  while (tok != NULL) {
+    if (tok->type == TokenSpace) {
+      if (tok->prev != NULL) {
+        // printf("Setting previous ");
+        // printfToken(tok->prev);
+        // printf(" to ");
+        // printfToken(tok->next);
+        // printf("\n");
+        tok->prev->next = tok->next;
+      }
+      if (tok->next != NULL) {
+        // printf("Setting next ");
+        // printfToken(tok->next);
+        // printf(" to ");
+        // printfToken(tok->prev);
+        // printf("\n");
+        tok->next->prev = tok->prev;
+      }
+      if (tkl->tail == tok) {
+        tkl->tail = tok->prev;
+      }
+      Token *toFree = tok;
+      tok = tok->next;
+      tkl->length--;
+      freeToken(toFree, false);
+    } else {
+      tok = tok->next;
+    }
+  }
+
+  return false;
+}
+
+Token *tklPeak(TokenList *tkl) { return tkl->head; }
+
+void tklPop(TokenList *tkl) {
+  if (tkl->length == 0) {
+    fprintf(stderr, "tklPop: TokenList empty, poped an empty list.\n");
+    return;
+  }
+  tkl->length--;
+  Token *toPop = tkl->head;
+  tkl->head = toPop->next;
+  if (tkl->head != NULL) {
+    tkl->head->prev = NULL;
+  }
+  freeToken(toPop, true);
 }

@@ -54,9 +54,15 @@ int main() {
   printf("Reading: \"\"\"%s\"\"\"\n", sourceCode);
   TokenList *tkl = tokenize(sourceCode);
   printf("TokenList:\n");
-  tklPrint(tkl);
+
+  printfTkl(tkl);
+
+  TEST_ASSERT(removeSpaces(tkl) == false);
+
+  printfTkl(tkl);
+
   if (tkl != NULL) {
-    tklFree(tkl, true);
+    freeTkl(tkl, true);
   }
 
   TEST_PASS("All lexer tests passed!");

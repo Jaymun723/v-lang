@@ -1,0 +1,20 @@
+# The current grammar supported
+
+constant := INTEGER | FLOATING
+
+unary_op := MINUS
+
+double_op := MINUS | ADD | MULT | DIV | MOD
+
+expr :=
+  OPEN_PARENT expr CLOSE_PARENT |
+  constant |
+  unary_op expr |
+  expr double_op expr |
+  func_call
+
+func_call := IDENTIFIER OPEN_PARENT expr CLOSE_PARENT
+
+statement := func_call SEMI | NEWLINE
+
+program := statement program | END_OF_FILE
