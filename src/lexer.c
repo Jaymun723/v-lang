@@ -274,7 +274,7 @@ TokenList *tokenizeFromFile(FILE *file) {
       }
       ungetc(c, file);
       if (isFloating) {
-        double *value = cvToFloatting(cv);
+        double *value = cvToFloating(cv);
         tklAppend(tkl, TokenFloating, (void *)value);
       } else {
         int *value = cvToInteger(cv);

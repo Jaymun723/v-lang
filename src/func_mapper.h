@@ -11,7 +11,9 @@
 typedef struct FuncMapper FuncMapper;
 
 FuncMapper *createFuncMapper();
+FuncMapper *createDefaultFuncMapper();
 void freeFuncMapper(FuncMapper *fm);
+void completlyFreeFuncMapper(FuncMapper *fm);
 
 void fprintfFuncMapper(FILE *channel, FuncMapper *fm);
 

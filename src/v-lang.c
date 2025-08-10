@@ -1,6 +1,8 @@
 #include "ast/program.h"
 #include "emitter.h"
+#include "func_mapper.h"
 #include "lexer.h"
+#include "validation.h"
 #include "wasm/module.h"
 #include <argp.h>
 #include <stdbool.h>
@@ -122,15 +124,23 @@ int main(int argc, char **argv) {
   AstProgram *program = parseAstProgram(tkl);
   freeTkl(tkl, true);
 
-  // printfWasmModule(module);
-  // printfAstProgram(program);
-
   if (program == NULL) {
     freeWasmModule(module);
     return 1;
   }
 
-  emit(module, program);
+  FuncMapper *fm = createDefaultFuncMapper();
+  if (!validate(fm, program)) {
+    completlyFreeFuncMapper(fm);
+    freeWasmModule(module);
+    freeAstProgram(program);
+    return 1;
+  }
+
+  emit(module, fm, program);
+
+  freeFuncMapper(fm);
+
   printfWasmModule(module);
 
   FILE *outputFile = fopen(arguments.output, "wb");

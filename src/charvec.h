@@ -26,4 +26,4 @@ int sizeCv(CharVec *cv);
 
 char *cvToString(CharVec *cv);
 int *cvToInteger(CharVec *cv);
-double *cvToFloatting(CharVec *cv);
+double *cvToFloating(CharVec *cv);

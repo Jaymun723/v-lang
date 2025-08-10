@@ -17,11 +17,26 @@ typedef enum AstExprType {
 
 extern const char *AST_EXPR_TYPE_STRING[];
 
+#define GENERATE_AST_EVAL_TYPE_ENUM(ENUM) AstEval##ENUM,
+#define GENERATE_AST_EVAL_TYPE_STRING(STRING) #STRING,
+
+#define FOREACH_AST_EVAL_TYPE(AST_EVAL_TYPE)                                   \
+  AST_EVAL_TYPE(Integer)                                                       \
+  AST_EVAL_TYPE(Floating)                                                      \
+  AST_EVAL_TYPE(None)                                                          \
+  AST_EVAL_TYPE(Undefined)
+
+typedef enum AstEvalType {
+  FOREACH_AST_EVAL_TYPE(GENERATE_AST_EVAL_TYPE_ENUM) AstEvalTypeCount
+} AstEvalType;
+
+extern const char *AST_EXPR_TYPE_STRING[];
+
 typedef struct AstExpr {
   AstExprType type;
+  AstEvalType evaluateType;
   union {
     struct {
-      TokenType type;
       void *value;
     } constant;
     struct {

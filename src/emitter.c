@@ -27,7 +27,7 @@ void emitIEEE754ToMainCode(WasmModule *module, double value) {
 void emitExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr);
 
 void emitConstantExpr(WasmModule *module, AstExpr *expr) {
-  if (expr->constant.type == TokenFloating) {
+  if (expr->evaluateType == AstEvalFloating) {
     emitByteToMainCode(module, WasmConst_f64_const);
     emitIEEE754ToMainCode(module, *(double *)expr->constant.value);
   } else {
@@ -100,19 +100,8 @@ void emitStatement(WasmModule *module, FuncMapper *fm,
   }
 }
 
-void emit(WasmModule *module, AstProgram *program) {
-  FuncMapper *fm = createFuncMapper();
-
-  CharVec *printI32Params = cvCreate();
-  appendCv(printI32Params, WASM_CONST_CODE[WasmConst_i32]);
-  addFunction(fm, "print_i32", printI32Params, NULL, NULL, true);
-
-  CharVec *printF64Params = cvCreate();
-  appendCv(printF64Params, WASM_CONST_CODE[WasmConst_f64]);
-  addFunction(fm, "print_f64", printF64Params, NULL, NULL, true);
-
-  unsigned int startIndex = addFunction(fm, "start", NULL, NULL, NULL, false);
-  module->startSection->index = startIndex + 2;
+void emit(WasmModule *module, FuncMapper *fm, AstProgram *program) {
+  module->startSection->index = getFunctionIndex(fm, "start");
 
   for (AstStatement *statement = program->statementHead; statement != NULL;
        statement = statement->next) {
@@ -121,5 +110,4 @@ void emit(WasmModule *module, AstProgram *program) {
   emitByteToMainCode(module, WasmConst_end);
 
   emitFuncMapper(module, fm);
-  freeFuncMapper(fm);
 }

@@ -120,7 +120,7 @@ int *cvToInteger(CharVec *cv) {
   return res;
 }
 
-double *cvToFloatting(CharVec *cv) {
+double *cvToFloating(CharVec *cv) {
   double *res = malloc(sizeof(double));
   *res = 0.0;
   unsigned int i = 0;

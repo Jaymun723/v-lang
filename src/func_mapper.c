@@ -37,8 +37,40 @@ FuncMapper *createFuncMapper() {
   return fm;
 }
 
+FuncMapper *createDefaultFuncMapper() {
+  FuncMapper *fm = createFuncMapper();
+
+  CharVec *printI32Params = cvCreate();
+  appendCv(printI32Params, WASM_CONST_CODE[WasmConst_i32]);
+  addFunction(fm, "print_i32", printI32Params, NULL, NULL, true);
+
+  CharVec *printF64Params = cvCreate();
+  appendCv(printF64Params, WASM_CONST_CODE[WasmConst_f64]);
+  addFunction(fm, "print_f64", printF64Params, NULL, NULL, true);
+
+  addFunction(fm, "start", NULL, NULL, NULL, false);
+
+  return fm;
+}
+
 void freeFuncMapper(FuncMapper *fm) {
   free(fm->importedFunctions);
+  free(fm->moduleFunctions);
+  free(fm);
+}
+
+void completlyFreeFuncMapper(FuncMapper *fm) {
+  for (unsigned int i = 0; i < fm->numImported; i++) {
+    freeCv(fm->importedFunctions[i].locals);
+    freeCv(fm->importedFunctions[i].params);
+    freeCv(fm->importedFunctions[i].results);
+  }
+  free(fm->importedFunctions);
+  for (unsigned int i = 0; i < fm->numModule; i++) {
+    freeCv(fm->moduleFunctions[i].locals);
+    freeCv(fm->moduleFunctions[i].params);
+    freeCv(fm->moduleFunctions[i].results);
+  }
   free(fm->moduleFunctions);
   free(fm);
 }
