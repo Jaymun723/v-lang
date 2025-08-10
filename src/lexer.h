@@ -25,7 +25,7 @@ typedef enum TokenType {
   FOREACH_TOKEN(GENERATE_TOKEN_ENUM) TokenTypeCount
 } TokenType;
 
-static const char *TOKEN_TYPE_STRING[] = {FOREACH_TOKEN(GENERATE_TOKEN_STRING)};
+extern const char *TOKEN_TYPE_STRING[];
 
 // #define FOREACH_KEYWORD(KEYWORD) KEYWORD(print)
 

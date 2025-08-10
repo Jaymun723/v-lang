@@ -14,7 +14,7 @@ typedef struct WasmModule {
   WasmCodeSection *codeSection;
 } WasmModule;
 
-WasmModule *createModule();
+WasmModule *createWasmModule();
 void fprintfWasmModule(FILE *channel, WasmModule *module);
 void printfWasmModule(WasmModule *module);
 void freeWasmModule(WasmModule *module);

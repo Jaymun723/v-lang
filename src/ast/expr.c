@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+const char *AST_EXPR_TYPE_STRING[] = {
+    FOREACH_AST_EXPR_TYPE(GENERATE_AST_EXPR_TYPE_STRING)};
+
 int getPrecedence(TokenType type) {
   switch (type) {
   case TokenMult:

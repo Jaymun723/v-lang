@@ -13,14 +13,23 @@
   WASM_CONST(funcref, 0x70)                                                    \
   WASM_CONST(externref, 0x6f)                                                  \
   WASM_CONST(functiontype, 0x60)                                               \
-  WASM_CONST(end, 0x0b)
+  WASM_CONST(end, 0x0b)                                                        \
+  WASM_CONST(i32_const, 0x41)                                                  \
+  WASM_CONST(i64_const, 0x42)                                                  \
+  WASM_CONST(f32_const, 0x43)                                                  \
+  WASM_CONST(f64_const, 0x44)                                                  \
+  WASM_CONST(i32_neg, 0x47)                                                    \
+  WASM_CONST(i32_add, 0x6a)                                                    \
+  WASM_CONST(i32_sub, 0x6b)                                                    \
+  WASM_CONST(i32_mul, 0x6c)                                                    \
+  WASM_CONST(i32_div_s, 0x6d)                                                  \
+  WASM_CONST(i32_rem_s, 0x6f)                                                  \
+  WASM_CONST(call, 0x10)
 
 typedef enum WasmConst {
   FOREACH_WASM_CONST(GENERATE_WASM_CONST_ENUM) WasmConstCount
 } WasmConst;
 
-static const char *WASM_CONST_STRING[] = {
-    FOREACH_WASM_CONST(GENERATE_WASM_CONST_STRING)};
+extern const char *WASM_CONST_STRING[];
 
-static const unsigned char WASM_CONST_CODE[] = {
-    FOREACH_WASM_CONST(GENERATE_WASM_CONST_CODE)};
+extern const unsigned char WASM_CONST_CODE[];

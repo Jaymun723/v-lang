@@ -1,7 +1,7 @@
 #include "module.h"
 #include <stdlib.h>
 
-WasmModule *createModule() {
+WasmModule *createWasmModule() {
   WasmModule *module = (WasmModule *)malloc(sizeof(WasmModule));
   // module->typesSection = NULL;
   module->typesSection = createDefaultTypeSection();

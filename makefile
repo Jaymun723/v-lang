@@ -52,7 +52,7 @@ test-%: $(OBJS)
 clean:
 	rm -rf $(BUILD_DIR)
 
-gen: test-generator
+emit: test-emitter
 	hd out/main.wasm > out/main.hd.txt
 	$(HOME)/code/wabt/bin/wasm2wat out/main.wasm -o out/main.wat
 	node out/main.js

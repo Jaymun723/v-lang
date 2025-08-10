@@ -3,7 +3,7 @@
 
 int main() {
   FILE *file = fopen("out/main.wasm", "wb");
-  WasmModule *module = createModule();
+  WasmModule *module = createWasmModule();
   printfWasmModule(module);
   writeModule(file, module);
   freeWasmModule(module);

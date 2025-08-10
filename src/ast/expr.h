@@ -15,8 +15,7 @@ typedef enum AstExprType {
   FOREACH_AST_EXPR_TYPE(GENERATE_AST_EXPR_TYPE_ENUM) AstExprTypeCount
 } AstExprType;
 
-static const char *AST_EXPR_TYPE_STRING[] = {
-    FOREACH_AST_EXPR_TYPE(GENERATE_AST_EXPR_TYPE_STRING)};
+extern const char *AST_EXPR_TYPE_STRING[];
 
 typedef struct AstExpr {
   AstExprType type;

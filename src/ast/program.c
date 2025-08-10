@@ -61,7 +61,7 @@ void fprintfAstProgram(FILE *channel, AstProgram *program, int depth) {
   fprintf(channel, ")\n");
 }
 
-void printfProgram(AstProgram *program) {
+void printfAstProgram(AstProgram *program) {
   if (program == NULL) {
     printf("[No program]\n");
   } else {

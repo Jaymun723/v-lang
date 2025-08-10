@@ -2,6 +2,10 @@
 #include "test_framework.h"
 #include <stdint.h>
 
+void fprintfInt(FILE *channel, void *value) {
+  fprintf(channel, "%ld", (intptr_t)value);
+}
+
 int main() {
   HashMap *hm = createHashMap();
 
@@ -12,9 +16,9 @@ int main() {
   hashMapSet(hm, "coco", (void *)((intptr_t)4));
   hashMapSet(hm, "cute", (void *)((intptr_t)5));
   hashMapSet(hm, "olpoe", (void *)((intptr_t)6));
-  printfHashMap(hm);
+  fprintfHashMap(stdout, hm, fprintfInt);
 
-  freeHashMap(hm);
+  freeHashMap(hm, NULL);
 
   TEST_PASS("ALL hashmap tests passed!");
   return 0;

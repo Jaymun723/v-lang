@@ -57,6 +57,21 @@ void writeULEB128(FILE *file, unsigned int value) {
   }
 }
 
+void emitULEB128(CharVec *cv, unsigned int value) {
+  if (value == 0) {
+    appendCv(cv, 0x00);
+  }
+  while (value != 0) {
+    char sevenFirstBits = value & 0x7f;
+    // Shif value by 7 to the right
+    value >>= 7;
+    if (value != 0) {
+      sevenFirstBits |= 0x80; // add a one if now the most significant
+    }
+    appendCv(cv, sevenFirstBits);
+  }
+}
+
 // from https://en.wikipedia.org/wiki/LEB128#Encode_signed_integer
 void writeSLEB128(FILE *file, int value) {
   bool more = true;
@@ -72,7 +87,7 @@ void writeSLEB128(FILE *file, int value) {
        this does not happen on most programming languages if "value" is in a
        signed type to begin with */
     if (negative) {
-      value |= (~0 << (size - 7)); /* sign extend */
+      value |= (~0u << (size - 7)); /* sign extend */
     }
 
     /* sign bit of byte is second high-order bit (0x40) */
@@ -83,5 +98,33 @@ void writeSLEB128(FILE *file, int value) {
       byte |= 0x80; /* set high-order bit of byte */
     }
     writeByte(file, byte);
+  }
+}
+
+void emitSLEB128(CharVec *cv, int value) {
+  bool more = true;
+  bool negative = value < 0;
+
+  unsigned int size = __CHAR_BIT__ * sizeof(int);
+
+  while (more) {
+    char byte = value & 0x7f; /* low-order 7 bits of value */
+    value >>= 7;
+    /* the following is only necessary if the implementation of >>= uses a
+       logical shift rather than an arithmetic shift for a signed left operand
+       this does not happen on most programming languages if "value" is in a
+       signed type to begin with */
+    if (negative) {
+      value |= (~0u << (size - 7)); /* sign extend */
+    }
+
+    /* sign bit of byte is second high-order bit (0x40) */
+    char sign_bit = byte & 0x40;
+    if ((value == 0 && sign_bit == 0) || (value == -1 && sign_bit != 0)) {
+      more = false;
+    } else {
+      byte |= 0x80; /* set high-order bit of byte */
+    }
+    appendCv(cv, byte);
   }
 }

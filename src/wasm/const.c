@@ -1,0 +1,7 @@
+#include "const.h"
+
+const char *WASM_CONST_STRING[] = {
+    FOREACH_WASM_CONST(GENERATE_WASM_CONST_STRING)};
+
+const unsigned char WASM_CONST_CODE[] = {
+    FOREACH_WASM_CONST(GENERATE_WASM_CONST_CODE)};

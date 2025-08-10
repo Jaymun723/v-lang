@@ -1,5 +1,5 @@
 #include "test_framework.h"
-#include "wasm_type.h"
+#include "wasm/module.h"
 
 int main() {
   WasmModule *module = createModule();

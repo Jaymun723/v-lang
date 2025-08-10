@@ -115,24 +115,38 @@ void *hashMapGet(HashMap *hm, const char *key) {
   return NULL;
 }
 
-void fprintfHashMapEntry(FILE *channel, HashMapEntry *hme) {
+void fprintfHashMapEntry(FILE *channel, HashMapEntry *hme,
+                         void (*fprintfValue)(FILE *, void *)) {
   if (hme->key != NULL) {
-    fprintf(channel, "  %s -> %p\n", hme->key, hme->value);
+
+    fprintf(channel, "  %s -> ", hme->key);
+    if (fprintfValue == NULL) {
+      fprintf(channel, "%p", hme->value);
+    } else {
+      fprintfValue(channel, hme->value);
+    }
+    fprintf(channel, "\n");
   }
 }
 
-void fprintfHashMap(FILE *channel, HashMap *hm) {
+void fprintfHashMap(FILE *channel, HashMap *hm,
+                    void (*fprintfValue)(FILE *, void *)) {
   fprintf(channel, "HashMap(length=%ld, capacity=%ld\n", hm->length,
           hm->capacity);
   for (size_t i = 0; i < hm->capacity; i++) {
-    fprintfHashMapEntry(channel, &hm->entries[i]);
+    fprintfHashMapEntry(channel, &hm->entries[i], fprintfValue);
   }
   fprintf(channel, ")\n");
 }
 
-void printfHashMap(HashMap *hm) { fprintfHashMap(stdout, hm); }
+void printfHashMap(HashMap *hm) { fprintfHashMap(stdout, hm, NULL); }
 
-void freeHashMap(HashMap *hm) {
+void freeHashMap(HashMap *hm, void (*freeValue)(void *)) {
+  for (size_t i = 0; i < hm->capacity; i++) {
+    if (hm->entries[i].key != NULL && freeValue != NULL) {
+      freeValue(hm->entries[i].value);
+    }
+  }
   free(hm->entries);
   free(hm);
 }

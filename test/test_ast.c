@@ -10,7 +10,7 @@ int main() {
 
   AstProgram *program = parseAstProgram(tkl);
 
-  printfProgram(program);
+  printfAstProgram(program);
 
   freeTkl(tkl, true);
   if (program != NULL) {

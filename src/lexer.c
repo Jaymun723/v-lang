@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+const char *TOKEN_TYPE_STRING[] = {FOREACH_TOKEN(GENERATE_TOKEN_STRING)};
+
 TokenList *tklCreate() {
   TokenList *result = (TokenList *)malloc(sizeof(TokenList));
   result->head = NULL;
