@@ -252,7 +252,7 @@ bool removeSpaces(TokenList *tkl) {
   return false;
 }
 
-Token *tklPeak(TokenList *tkl) { return tkl->head; }
+Token *tklPeek(TokenList *tkl) { return tkl->head; }
 
 void tklPop(TokenList *tkl) {
   if (tkl->length == 0) {

@@ -12,11 +12,18 @@ void addAstStatement(AstProgram *program, AstStatement *statement) {
   program->numStatements++;
 }
 
-AstProgram *parseAstProgram(TokenList *tkl) {
+AstProgram *createProgram() {
   AstProgram *program = (AstProgram *)malloc(sizeof(AstProgram));
+  program->statementHead = NULL;
+  program->statementTail = NULL;
   program->numStatements = 0;
-  Token *tok = tklPeak(tkl);
-  while (tok != NULL && tok != TokenEndOfFile) {
+  return program;
+}
+
+AstProgram *parseAstProgram(TokenList *tkl) {
+  AstProgram *program = createProgram();
+  Token *tok = tklPeek(tkl);
+  while (tok != NULL && tok->type != TokenEndOfFile) {
     if (tok->type == TokenNewline) {
       tklPop(tkl);
     } else {
@@ -25,8 +32,9 @@ AstProgram *parseAstProgram(TokenList *tkl) {
         freeAstProgram(program);
         return NULL;
       }
+      addAstStatement(program, statement);
     }
-    tok = tklPeak(tkl);
+    tok = tklPeek(tkl);
   }
   tklPop(tkl);
   return program;
@@ -39,12 +47,24 @@ void freeAstProgram(AstProgram *program) {
   free(program);
 }
 
-void fprintfAstProgram(FILE *channel, AstProgram *program) {
+void fprintfAstProgram(FILE *channel, AstProgram *program, int depth) {
+  for (int i = 0; i < depth; i++) {
+    fprintf(channel, " ");
+  }
   fprintf(channel, "Program(numStatements=%d\n", program->numStatements);
   if (program->statementHead) {
-    fprintfAstStatement(channel, program->statementHead);
+    fprintfAstStatement(channel, program->statementHead, depth + 1);
+  }
+  for (int i = 0; i < depth; i++) {
+    fprintf(channel, " ");
   }
   fprintf(channel, ")\n");
 }
 
-void printfProgram(AstProgram *program) { fprintfAstProgram(stdout, program); }
+void printfProgram(AstProgram *program) {
+  if (program == NULL) {
+    printf("[No program]\n");
+  } else {
+    fprintfAstProgram(stdout, program, 0);
+  }
+}

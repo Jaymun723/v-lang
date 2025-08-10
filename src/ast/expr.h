@@ -46,4 +46,4 @@ AstExpr *parseExprPrecedence(TokenList *tkl, int minPrec);
 AstExpr *parseUnaryExpr(TokenList *tkl);
 
 void freeAstExpr(AstExpr *expr);
-void fprintfAstExpr(FILE *channel, AstExpr *expr);
+void fprintfAstExpr(FILE *channel, AstExpr *expr, int depth);

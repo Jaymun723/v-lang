@@ -3,9 +3,7 @@
 #include "expr.h"
 #include <stdio.h>
 
-typedef struct AstStmtType {
-  AstStmtFuncCall
-} AstStmtType;
+typedef enum AstStmtType { AstStmtFuncCall } AstStmtType;
 
 typedef struct AstStatement {
   AstStmtType type;
@@ -19,4 +17,4 @@ typedef struct AstStatement {
 
 AstStatement *parseAstStatement(TokenList *tkl);
 void freeAstStatement(AstStatement *statement);
-void fprintfAstStatement(FILE *channel, AstStatement *statement);
+void fprintfAstStatement(FILE *channel, AstStatement *statement, int depth);

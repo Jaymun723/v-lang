@@ -13,5 +13,5 @@ typedef struct AstProgram {
 
 AstProgram *parseAstProgram(TokenList *tkl);
 void freeAstProgram(AstProgram *program);
-void fprintfAstProgram(FILE *channel, AstProgram *program);
+void fprintfAstProgram(FILE *channel, AstProgram *program, int depth);
 void printfProgram(AstProgram *program);

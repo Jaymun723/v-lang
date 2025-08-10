@@ -67,11 +67,13 @@ AstExpr *parseUnaryExpr(TokenList *tkl) {
   if (tok->type == TokenOpenParent) {
     tklPop(tkl);
     AstExpr *expr = parseExpr(tkl);
-    if (!assertType(tkl, TokenCloseParent)) {
+    tok = tklPeek(tkl);
+    if (tok->type != TokenCloseParent) {
       fprintf(stderr, "parseUnaryExpr: Expected closing parenthesis.\n");
       freeAstExpr(expr);
       return NULL;
     }
+    tklPop(tkl);
     return expr;
   }
 
@@ -98,16 +100,18 @@ AstExpr *parseUnaryExpr(TokenList *tkl) {
     if (next && next->type == TokenOpenParent) {
       tklPop(tkl);
       AstExpr *arg = parseExpr(tkl);
-      tok = tklPeak(tkl);
-      if (tok->type == TokenCloseParent) {
+      tok = tklPeek(tkl);
+      if (tok->type != TokenCloseParent) {
         fprintf(stderr,
                 "parseUnaryExpr: Expected closing parenthesis in func call.\n");
+        free(funcName);
         freeAstExpr(arg);
         return NULL;
       }
       tklPop(tkl);
       return createFuncCallExpr(funcName, arg);
     } else {
+      free(funcName);
       fprintf(stderr, "parseUnaryExpr: Unexpected token after identifier; "
                       "expected '(' for func call.\n");
       return NULL;
@@ -165,24 +169,38 @@ void freeAstExpr(AstExpr *expr) {
   free(expr);
 }
 
-void fprintfAstExpr(FILE *channel, AstExpr *expr) {
-  fprintf(channel, "Expr(%, ", AST_EXPR_TYPE_STRING[expr->type]);
+void fprintfAstExpr(FILE *channel, AstExpr *expr, int depth) {
+  for (int i = 0; i < depth; i++) {
+    fprintf(channel, " ");
+  }
+  fprintf(channel, "Expr(%s, ", AST_EXPR_TYPE_STRING[expr->type]);
   if (expr->type == AstExprConstant) {
     if (expr->constant.type == TokenInteger) {
-      fprintf(channel, "%d", *(int *)expr->constant.value);
+      fprintf(channel, "%d)\n", *(int *)expr->constant.value);
     } else {
-      fprintf(channel, "%f", *(double *)expr->constant.value);
+      fprintf(channel, "%f)\n", *(double *)expr->constant.value);
     }
   } else if (expr->type == AstExprUnaryOp) {
-    fprintf(channel, "%s, ", TOKEN_TYPE_STRING[expr->unary.op]);
-    fprintfAstExpr(channel, expr->unary.child);
+    fprintf(channel, "%s,\n", TOKEN_TYPE_STRING[expr->unary.op]);
+    fprintfAstExpr(channel, expr->unary.child, depth + 1);
+    for (int i = 0; i < depth; i++) {
+      fprintf(channel, " ");
+    }
+    fprintf(channel, ")\n");
   } else if (expr->type == AstExprBinaryOp) {
-    fprintf(channel, "%s, ", TOKEN_TYPE_STRING[expr->unary.op]);
-    fprintfAstExpr(channel, expr->binary.left);
-    fprintf(channel, ", ");
-    fprintfAstExpr(channel, expr->binary.right);
+    fprintf(channel, "%s,\n", TOKEN_TYPE_STRING[expr->unary.op]);
+    fprintfAstExpr(channel, expr->binary.left, depth + 1);
+    fprintfAstExpr(channel, expr->binary.right, depth + 1);
+    for (int i = 0; i < depth; i++) {
+      fprintf(channel, " ");
+    }
+    fprintf(channel, ")\n");
   } else if (expr->type == AstExprFuncCall) {
-    fprintf(channel, "%s, ", expr->funcCall.funcName);
-    fprintfAstExpr(channel, expr->funcCall.arg);
+    fprintf(channel, "%s,\n", expr->funcCall.funcName);
+    fprintfAstExpr(channel, expr->funcCall.arg, depth + 1);
+    for (int i = 0; i < depth; i++) {
+      fprintf(channel, " ");
+    }
+    fprintf(channel, ")\n");
   }
 }

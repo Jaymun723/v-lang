@@ -65,5 +65,5 @@ TokenList *tokenize(const char *sourceCode);
  */
 bool removeSpaces(TokenList *tkl);
 
-Token *tklPeak(TokenList *tkl);
+Token *tklPeek(TokenList *tkl);
 void tklPop(TokenList *tkl);

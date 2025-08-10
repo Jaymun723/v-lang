@@ -1,36 +1,40 @@
 #include "statement.h"
 #include <stdlib.h>
 
-AstStatement *parseAstStatement(TokenList *tkl) {
+AstStatement *createStatementFuncCall(AstExpr *funcCall) {
   AstStatement *statement = (AstStatement *)malloc(sizeof(AstStatement));
+  statement->type = AstStmtFuncCall;
+  statement->next = NULL;
+  statement->funcCall = funcCall;
+
+  return statement;
+}
+
+AstStatement *parseAstStatement(TokenList *tkl) {
   Token *tok = tklPeek(tkl);
-  if (!tok)
+  if (!tok) {
     return NULL;
+  }
 
   if (tok->type == TokenIdentifier) {
-    statement->type = AstStmtFuncCall;
     AstExpr *funcCall = parseUnaryExpr(tkl);
 
     if (!funcCall) {
       return NULL;
     }
 
-    tok = tklPeak(tkl);
+    tok = tklPeek(tkl);
     if (tok->type != TokenSemi) {
       fprintf(stderr, "parseAstStatement: Expected ';' after function call.\n");
       freeAstExpr(funcCall);
-      freeAstStatement(statement);
       return NULL;
     }
     tklPop(tkl);
 
-    statement->funcCall = funcCall;
-
-    return statement;
+    return createStatementFuncCall(funcCall);
   }
 
   fprintf(stderr, "parseAstStatement: Unexpected token in statement\n");
-  freeAstStatement(statement);
   return NULL;
 }
 
@@ -44,15 +48,21 @@ void freeAstStatement(AstStatement *statement) {
   free(statement);
 }
 
-void fprintfAstStatement(FILE *channel, AstStatement *statement) {
+void fprintfAstStatement(FILE *channel, AstStatement *statement, int depth) {
+  for (int i = 0; i < depth; i++) {
+    fprintf(channel, " ");
+  }
   fprintf(channel, "Statement(");
   if (statement->type == AstStmtFuncCall) {
-    fprintf(channel, "FuncCall: ");
-    fprintfAstExpr(channel, statement->funcCall);
+    fprintf(channel, "FuncCall:\n");
+    fprintfAstExpr(channel, statement->funcCall, depth);
+  }
+  for (int i = 0; i < depth; i++) {
+    fprintf(channel, " ");
   }
   if (statement->next != NULL) {
-    fprintf(channel, "), ");
-    fprintfAstStatement(channel, statement->next);
+    fprintf(channel, "),\n");
+    fprintfAstStatement(channel, statement->next, depth);
   }
-  fprintf(channel, ")");
+  fprintf(channel, ")\n");
 }
