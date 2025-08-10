@@ -7,10 +7,12 @@ unary_op := MINUS
 double_op := MINUS | ADD | MULT | DIV | MOD
 
 expr :=
+  unary_expr expr
+
+unary_expr :=
   OPEN_PARENT expr CLOSE_PARENT |
   constant |
-  unary_op expr |
-  expr double_op expr |
+  unary_op unary_expr |
   func_call
 
 func_call := IDENTIFIER OPEN_PARENT expr CLOSE_PARENT
