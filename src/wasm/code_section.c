@@ -50,11 +50,11 @@ WasmCodeSection *createDefaultWasmCodeSection() {
 
   CharVec *locals = cvCreate();
   CharVec *body = cvCreate();
-  appendCv(body, 0x41);
-  appendCv(body, 0x07);
-  appendCv(body, 0x10);
-  appendCv(body, 0x00);
-  appendCv(body, 0x0b);
+  // appendCv(body, 0x41);
+  // appendCv(body, 0x07);
+  // appendCv(body, 0x10);
+  // appendCv(body, 0x00);
+  // appendCv(body, 0x0b);
   addWasmCode(section, locals, body);
 
   return section;

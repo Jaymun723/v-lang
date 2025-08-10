@@ -2,6 +2,7 @@
 #include "../common.h"
 #include "../leb128.h"
 #include "../mystring.h"
+#include "const.h"
 #include "function_section.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +42,7 @@ void addFunctionType(WasmTypeSection *section, CharVec *param,
                      CharVec *result) {
   WasmFunctionType *funcType =
       (WasmFunctionType *)malloc(sizeof(WasmFunctionType));
-  funcType->id = 0x60;
+  funcType->id = WASM_CONST_CODE[WasmConst_functiontype];
   funcType->param = param;
   funcType->result = result;
   funcType->next = NULL;
