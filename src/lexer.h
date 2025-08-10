@@ -59,6 +59,7 @@ void printfToken(Token *tok);
 void printfTkl(TokenList *tkl);
 
 TokenList *tokenize(const char *sourceCode);
+TokenList *tokenizeFromFile(FILE *file);
 
 /**
  * Returns true if it start with a space.

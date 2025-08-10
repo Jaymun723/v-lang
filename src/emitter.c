@@ -29,17 +29,14 @@ void printfFuncMapper(FuncMapper *fm) {
 }
 
 void emitByteToMainCode(WasmModule *module, WasmConst byte) {
-  printf("emit: %s\n", WASM_CONST_STRING[byte]);
   appendCv(module->codeSection->codeHead->body, WASM_CONST_CODE[byte]);
 }
 
 void emitSLEB128ToMainCode(WasmModule *module, int value) {
-  printf("emit: SLEB128(%d)\n", value);
   emitSLEB128(module->codeSection->codeHead->body, value);
 }
 
 void emitULEB128ToMainCode(WasmModule *module, unsigned int value) {
-  printf("emit: ULEB128(%d)\n", value);
   emitULEB128(module->codeSection->codeHead->body, value);
 }
 

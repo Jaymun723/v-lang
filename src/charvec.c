@@ -81,3 +81,47 @@ void writeRawCv(FILE *file, CharVec *cv) {
 }
 
 int sizeCv(CharVec *cv) { return sizeLEB128(cv->length) + cv->length; }
+
+char *cvToString(CharVec *cv) {
+  char *string = (char *)malloc(sizeof(char) * (cv->length + 1));
+  string[cv->length] = '\0';
+  for (unsigned int i = 0; i < cv->length; i++) {
+    string[i] = cv->data[i];
+  }
+  freeCv(cv);
+  return string;
+}
+
+int *cvToInteger(CharVec *cv) {
+  int *res = malloc(sizeof(int));
+  *res = 0;
+  for (unsigned int i = 0; i < cv->length; i++) {
+    int n = (int)(cv->data[i] - '0');
+    *res *= 10;
+    *res += n;
+  }
+  freeCv(cv);
+  return res;
+}
+
+double *cvToFloatting(CharVec *cv) {
+  double *res = malloc(sizeof(double));
+  *res = 0.0;
+  unsigned int i = 0;
+  while (cv->data[i] != '.') {
+    int n = (int)(cv->data[i] - '0');
+    *res *= 10.0;
+    *res += (double)n;
+    i++;
+    // printf("float (start): read %d, thus res is %f\n", n, *res);
+  }
+  double rest = 0.0;
+  for (unsigned int j = cv->length - 1; j > i; j--) {
+    int n = (int)(cv->data[j] - '0');
+    rest = 0.1 * rest + n;
+    // printf("float (end): read %d, thus rest is %f\n", n, rest);
+  }
+  *res = *res + 0.1 * rest;
+  freeCv(cv);
+  return res;
+}

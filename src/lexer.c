@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "charvec.h"
 #include "mystring.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -203,6 +204,87 @@ TokenList *tokenize(const char *sourceCode) {
     } else {
       fprintf(stderr,
               "Unable to lex this character: \"%c\". Aborting lexing.\n", c);
+      freeTkl(tkl, true);
+      return NULL;
+    }
+  }
+
+  return tkl;
+}
+
+TokenList *tokenizeFromFile(FILE *file) {
+  TokenList *tkl = tklCreate();
+
+  while (true) {
+    char c = fgetc(file);
+    if (c == EOF) {
+      tklAppend(tkl, TokenEndOfFile, NULL);
+      break;
+    } else if (c == ' ') {
+      intptr_t value = 0;
+      while (c == ' ') {
+        value++;
+        c = fgetc(file);
+      }
+      ungetc(c, file);
+      tklAppend(tkl, TokenSpace, (char *)value);
+    } else if (c == '\n') {
+      tklAppend(tkl, TokenNewline, NULL);
+    } else if (c == '(') {
+      tklAppend(tkl, TokenOpenParent, NULL);
+    } else if (c == ')') {
+      tklAppend(tkl, TokenCloseParent, NULL);
+    } else if (c == '-') {
+      tklAppend(tkl, TokenMinus, NULL);
+    } else if (c == '+') {
+      tklAppend(tkl, TokenAdd, NULL);
+    } else if (c == '*') {
+      tklAppend(tkl, TokenMult, NULL);
+    } else if (c == '/') {
+      tklAppend(tkl, TokenDiv, NULL);
+    } else if (c == '%') {
+      tklAppend(tkl, TokenMod, NULL);
+    } else if (c == ';') {
+      tklAppend(tkl, TokenSemi, NULL);
+    } else if (isLetter(c)) {
+      CharVec *cv = cvCreate();
+      while (isAlphanum(c)) {
+        appendCv(cv, c);
+        c = fgetc(file);
+      }
+      ungetc(c, file);
+      char *word = cvToString(cv);
+
+      tklAppend(tkl, TokenIdentifier, word);
+    } else if (isNum(c) || c == '.') {
+      bool isFloating = c == '.';
+      CharVec *cv = cvCreate();
+      bool firstIter = true;
+      while (isNum(c) || c == '.') {
+        if (c == '.' && !firstIter) {
+          if (isFloating) {
+            break;
+          } else {
+            isFloating = true;
+          }
+        }
+        firstIter = false;
+        appendCv(cv, c);
+        c = fgetc(file);
+      }
+      ungetc(c, file);
+      if (isFloating) {
+        double *value = cvToFloatting(cv);
+        tklAppend(tkl, TokenFloating, (void *)value);
+      } else {
+        int *value = cvToInteger(cv);
+        tklAppend(tkl, TokenInteger, (void *)value);
+      }
+    } else {
+      fprintf(
+          stderr,
+          "Unable to lex this character: \"%c\"=0x%02hhx. Aborting lexing.\n",
+          c, c);
       freeTkl(tkl, true);
       return NULL;
     }

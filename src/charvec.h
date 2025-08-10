@@ -21,3 +21,7 @@ char getCv(CharVec *cv, unsigned int i);
 void writeCv(FILE *file, CharVec *c);
 void writeRawCv(FILE *file, CharVec *c);
 int sizeCv(CharVec *cv);
+
+char *cvToString(CharVec *cv);
+int *cvToInteger(CharVec *cv);
+double *cvToFloatting(CharVec *cv);

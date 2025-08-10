@@ -36,7 +36,8 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 # Run the app
 run: all
-	$(TARGET)
+	$(TARGET) out/main.v
+	node out/main.js
 
 test-%: $(OBJS)
 	@mkdir -p $(BUILD_DIR)
@@ -52,9 +53,8 @@ test-%: $(OBJS)
 clean:
 	rm -rf $(BUILD_DIR)
 
-emit: test-emitter
+debug: run
 	hd out/main.wasm > out/main.hd.txt
 	$(HOME)/code/wabt/bin/wasm2wat out/main.wasm -o out/main.wat
-	node out/main.js
 
 .PHONY: all run clean
