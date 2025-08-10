@@ -6,12 +6,12 @@
 #include <stdlib.h>
 
 void addWasmImport(WasmImportSection *section, const char *mod,
-                   const char *name, char importType, char index) {
+                   const char *name, char importType, char typeIndex) {
   WasmImport *import = (WasmImport *)malloc(sizeof(WasmImport));
   import->mod = stringCopyN(mod, -1);
   import->name = stringCopyN(name, -1);
   import->importType = importType;
-  import->index = index;
+  import->typeIndex = typeIndex;
   import->next = NULL;
 
   if (section->numImports == 0) {
@@ -23,15 +23,16 @@ void addWasmImport(WasmImportSection *section, const char *mod,
   section->numImports++;
 }
 
-void fprintfWasmImport(FILE *channel, WasmImport *import) {
-  fprintf(channel, " (import \"%s\" \"%s\" ", import->mod, import->name);
+void fprintfWasmImport(FILE *channel, WasmImport *import, unsigned int i) {
+  fprintf(channel, " (import (;%d;) \"%s\" \"%s\" ", i, import->mod,
+          import->name);
   if (import->importType == 0x00) {
-    fprintf(channel, "(func (type %d))", import->index);
+    fprintf(channel, "(func (type %d))", import->typeIndex);
   }
   fprintf(channel, ")");
   if (import->next != NULL) {
     fprintf(channel, "\n");
-    fprintfWasmImport(channel, import->next);
+    fprintfWasmImport(channel, import->next, i + 1);
   }
 }
 
@@ -52,14 +53,14 @@ WasmImportSection *createDefaultImportSection() {
   section->importHead = NULL;
   section->importTail = NULL;
 
-  addWasmImport(section, "env", "print", 0x00, 1);
+  // addWasmImport(section, "env", "print", 0x00, 1);
 
   return section;
 }
 
 void fprintfWasmImportSection(FILE *channel, WasmImportSection *section) {
   if (section->importHead != NULL) {
-    fprintfWasmImport(channel, section->importHead);
+    fprintfWasmImport(channel, section->importHead, 0);
   }
 }
 
@@ -78,10 +79,11 @@ int sizeWasmImport(WasmImport *import) {
 }
 
 void writeWasmImport(FILE *file, WasmImport *import) {
+  printf("writeWasmImport: %s %s\n", import->mod, import->name);
   writeString(file, import->mod);
   writeString(file, import->name);
   fputc(import->importType, file);
-  writeULEB128(file, import->index);
+  writeULEB128(file, import->typeIndex);
 
   if (import->next != NULL) {
     writeWasmImport(file, import->next);

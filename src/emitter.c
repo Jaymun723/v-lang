@@ -1,32 +1,9 @@
 #include "emitter.h"
 #include "common.h"
+#include "func_mapper.h"
 #include "leb128.h"
 #include "wasm/const.h"
 #include <stdlib.h>
-
-void funcMapperSet(FuncMapper *fm, const char *funcName, unsigned int index,
-                   unsigned int typeIndex, bool import) {
-  FuncDesc *desc = (FuncDesc *)malloc(sizeof(FuncDesc));
-  desc->index = index;
-  desc->typeIndex = typeIndex;
-  desc->import = import;
-  hashMapSet((HashMap *)fm, funcName, (void *)desc);
-}
-
-FuncDesc *funcMapperGet(FuncMapper *fm, const char *funcName) {
-  return (FuncDesc *)hashMapGet((HashMap *)fm, funcName);
-}
-
-void freeFuncMapper(FuncMapper *fm) { freeHashMap((HashMap *)fm, free); }
-
-void fprintfFuncDesc(FILE *channel, void *value) {
-  FuncDesc *funcDesc = (FuncDesc *)value;
-  fprintf(channel, "index: %d, typeIndex: %d, import: %d", funcDesc->index,
-          funcDesc->typeIndex, funcDesc->import);
-}
-void printfFuncMapper(FuncMapper *fm) {
-  fprintfHashMap(stdout, (HashMap *)fm, fprintfFuncDesc);
-}
 
 void emitByteToMainCode(WasmModule *module, WasmConst byte) {
   appendCv(module->codeSection->codeHead->body, WASM_CONST_CODE[byte]);
@@ -40,11 +17,19 @@ void emitULEB128ToMainCode(WasmModule *module, unsigned int value) {
   emitULEB128(module->codeSection->codeHead->body, value);
 }
 
+void emitIEEE754ToMainCode(WasmModule *module, double value) {
+  unsigned char *bytes = (unsigned char *)&value;
+  for (int i = 0; i < 8; i++) {
+    emitByteToMainCode(module, bytes[i]);
+  }
+}
+
 void emitExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr);
 
 void emitConstantExpr(WasmModule *module, AstExpr *expr) {
   if (expr->constant.type == TokenFloating) {
-    fprintf(stderr, "flotting constants not implemented yet.\n");
+    emitByteToMainCode(module, WasmConst_f64_const);
+    emitIEEE754ToMainCode(module, *(double *)expr->constant.value);
   } else {
     emitByteToMainCode(module, WasmConst_i32_const);
     emitSLEB128ToMainCode(module, *(int *)expr->constant.value);
@@ -79,14 +64,14 @@ void emitBinaryOpExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
   }
 }
 void emitFuncCallExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
-  FuncDesc *funcDesc = funcMapperGet(fm, expr->funcCall.funcName);
-  if (funcDesc == NULL) {
+  int i = getFunctionIndex(fm, expr->funcCall.funcName);
+  if (i == -1) {
     fprintf(stderr, "emitFuncCallExpr: Unknow function called.\n");
     return;
   }
   emitExpr(module, fm, expr->funcCall.arg);
   emitByteToMainCode(module, WasmConst_call);
-  emitULEB128ToMainCode(module, funcDesc->index);
+  emitULEB128ToMainCode(module, (unsigned int)i);
 }
 
 void emitExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
@@ -116,15 +101,25 @@ void emitStatement(WasmModule *module, FuncMapper *fm,
 }
 
 void emit(WasmModule *module, AstProgram *program) {
-  FuncMapper *fm = (FuncMapper *)createHashMap();
-  funcMapperSet(fm, "print", 0, 1, true);
+  FuncMapper *fm = createFuncMapper();
+
+  CharVec *printI32Params = cvCreate();
+  appendCv(printI32Params, WASM_CONST_CODE[WasmConst_i32]);
+  addFunction(fm, "print_i32", printI32Params, NULL, NULL, true);
+
+  CharVec *printF64Params = cvCreate();
+  appendCv(printF64Params, WASM_CONST_CODE[WasmConst_f64]);
+  addFunction(fm, "print_f64", printF64Params, NULL, NULL, true);
+
+  unsigned int startIndex = addFunction(fm, "start", NULL, NULL, NULL, false);
+  module->startSection->index = startIndex + 2;
 
   for (AstStatement *statement = program->statementHead; statement != NULL;
        statement = statement->next) {
     emitStatement(module, fm, statement);
   }
-
-  // printfFuncMapper(fm);
   emitByteToMainCode(module, WasmConst_end);
+
+  emitFuncMapper(module, fm);
   freeFuncMapper(fm);
 }

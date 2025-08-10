@@ -5,7 +5,7 @@ typedef struct WasmImport {
   char *mod;
   char *name;
   char importType;
-  unsigned int index;
+  unsigned int typeIndex;
 
   struct WasmImport *next;
 } WasmImport;
@@ -18,6 +18,8 @@ typedef struct WasmImportSection {
   WasmImport *importTail;
 } WasmImportSection;
 
+void addWasmImport(WasmImportSection *section, const char *mod,
+                   const char *name, char importType, char typeIndex);
 WasmImportSection *createDefaultImportSection();
 void fprintfWasmImportSection(FILE *channel, WasmImportSection *section);
 void freeWasmImportSection(WasmImportSection *section);

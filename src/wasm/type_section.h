@@ -22,6 +22,8 @@ typedef struct WasmTypeSection {
   WasmFunctionType *funcTypesTail;
 } WasmTypeSection;
 
+int addFunctionType(WasmTypeSection *section, CharVec *param, CharVec *result);
+
 WasmTypeSection *createDefaultTypeSection();
 void freeWasmTypeSection(WasmTypeSection *section);
 void fprintfWasmTypeSection(FILE *channel, WasmTypeSection *section);

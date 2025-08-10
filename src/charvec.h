@@ -12,6 +12,8 @@ CharVec *cvCreate();
 void freeCv(CharVec *charVec);
 void printfCv(CharVec *charVec);
 void fprintfCv(FILE *channel, CharVec *cv, bool oneLine);
+void fprintfCustomCv(FILE *channel, CharVec *cv,
+                     void (*fprintfByte)(FILE *, unsigned char));
 
 void appendCv(CharVec *charVec, char c);
 void addCv(CharVec *charVec, char *c, int n);

@@ -1,6 +1,7 @@
 #include "code_section.h"
 #include "../common.h"
 #include "../leb128.h"
+#include "const.h"
 #include <stdlib.h>
 
 void addWasmCode(WasmCodeSection *section, CharVec *locals, CharVec *body) {
@@ -19,11 +20,13 @@ void addWasmCode(WasmCodeSection *section, CharVec *locals, CharVec *body) {
 }
 
 void fprintfWasmCode(FILE *channel, WasmCode *code) {
-  fprintf(channel, " (func\n  [locals:");
-  fprintfCv(channel, code->locals, true);
-  fprintf(channel, "]\n  [body:");
-  fprintfCv(channel, code->body, true);
-  fprintf(channel, "])");
+  fprintf(channel, " (func\n  (;locals;)");
+  fprintfCustomCv(channel, code->locals, fprintfWasmConst);
+
+  fprintf(channel, "\n  (;body;) ");
+  fprintfCustomCv(channel, code->body, fprintfWasmConst);
+
+  fprintf(channel, ")");
 
   if (code->next != NULL) {
     fprintf(channel, "\n");

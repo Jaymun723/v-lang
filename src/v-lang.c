@@ -108,7 +108,12 @@ int main(int argc, char **argv) {
   FILE *inputFile = fopen(arguments.input, "rb");
   TokenList *tkl = tokenizeFromFile(inputFile);
   fclose(inputFile);
-  if (removeSpaces(tkl)) {
+
+  if (tkl == NULL) {
+    free(derived_output);
+    return 1;
+  } else if (removeSpaces(tkl)) {
+    free(derived_output);
     fprintf(stderr, "Syntax error: your file should not start with a space.\n");
     freeTkl(tkl, true);
     return 1;
@@ -117,12 +122,16 @@ int main(int argc, char **argv) {
   AstProgram *program = parseAstProgram(tkl);
   freeTkl(tkl, true);
 
+  // printfWasmModule(module);
+  // printfAstProgram(program);
+
   if (program == NULL) {
     freeWasmModule(module);
     return 1;
   }
 
   emit(module, program);
+  printfWasmModule(module);
 
   FILE *outputFile = fopen(arguments.output, "wb");
   writeModule(outputFile, module);

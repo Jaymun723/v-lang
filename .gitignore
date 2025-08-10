@@ -1,4 +1,6 @@
 build/
+playground/
+
 out/*.wasm
 out/*.wat
 out/*.hd.txt

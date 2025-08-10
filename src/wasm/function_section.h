@@ -4,9 +4,15 @@
 
 typedef struct WasmFunctionSection {
   char id;
-  CharVec *types;
+
+  unsigned int capacity;
+
+  unsigned int numTypeindexes;
+  unsigned int *typeIndexes;
 } WasmFunctionSection;
 
+void registerFunctionTypeIndex(WasmFunctionSection *section,
+                               unsigned int typeIndex);
 WasmFunctionSection *createDefaultWasmFunctionSection();
 void freeWasmFunctionSection(WasmFunctionSection *section);
 void fprintfWasmFunctionSection(FILE *channel, WasmFunctionSection *section);

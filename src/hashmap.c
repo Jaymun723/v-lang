@@ -25,6 +25,7 @@ typedef struct HashMapEntry {
 typedef struct HashMap {
   size_t length;
   size_t capacity;
+  size_t index;
 
   HashMapEntry *entries;
 } HashMap;
@@ -33,6 +34,7 @@ HashMap *createHashMap() {
   HashMap *hm = (HashMap *)malloc(sizeof(HashMap));
   hm->length = 0;
   hm->capacity = 5;
+  hm->index = 0;
   hm->entries = (HashMapEntry *)malloc(sizeof(HashMapEntry) * hm->capacity);
   for (size_t i = 0; i < hm->capacity; i++) {
     hm->entries[i].key = NULL;
@@ -115,11 +117,29 @@ void *hashMapGet(HashMap *hm, const char *key) {
   return NULL;
 }
 
-void fprintfHashMapEntry(FILE *channel, HashMapEntry *hme,
+unsigned int hashMapIndex(HashMap *hm, const char *key) {
+  size_t capacityIndex = 0;
+  size_t lengthIndex = 0;
+  while (capacityIndex < hm->capacity) {
+    if (hm->entries[capacityIndex].key != NULL) {
+      if (stringCmp(hm->entries[capacityIndex].key, key) == 0) {
+        return lengthIndex;
+      } else {
+        lengthIndex++;
+      }
+    }
+    capacityIndex++;
+  }
+
+  fprintf(stderr, "hashMapIndex: Key not found.\n");
+  return 0;
+}
+
+void fprintfHashMapEntry(FILE *channel, HashMapEntry *hme, size_t j,
                          void (*fprintfValue)(FILE *, void *)) {
   if (hme->key != NULL) {
 
-    fprintf(channel, "  %s -> ", hme->key);
+    fprintf(channel, "[%ld]:  %s -> ", j, hme->key);
     if (fprintfValue == NULL) {
       fprintf(channel, "%p", hme->value);
     } else {
@@ -133,8 +153,12 @@ void fprintfHashMap(FILE *channel, HashMap *hm,
                     void (*fprintfValue)(FILE *, void *)) {
   fprintf(channel, "HashMap(length=%ld, capacity=%ld\n", hm->length,
           hm->capacity);
+  size_t j = 0;
   for (size_t i = 0; i < hm->capacity; i++) {
-    fprintfHashMapEntry(channel, &hm->entries[i], fprintfValue);
+    if (hm->entries[i].key != NULL) {
+      fprintfHashMapEntry(channel, &hm->entries[i], j, fprintfValue);
+      j++;
+    }
   }
   fprintf(channel, ")\n");
 }
@@ -149,4 +173,19 @@ void freeHashMap(HashMap *hm, void (*freeValue)(void *)) {
   }
   free(hm->entries);
   free(hm);
+}
+
+void hashMapIterateInit(HashMap *hm) { hm->index = 0; }
+
+void *hashMapIterate(HashMap *hm, const char **key) {
+  size_t startIndex = hm->index;
+  void *value = NULL;
+  do {
+    if (hm->entries[hm->index].key != NULL) {
+      *key = hm->entries[hm->index].key;
+      value = hm->entries[hm->index].value;
+    }
+    hm->index = (hm->index + 1) % hm->capacity;
+  } while (startIndex != hm->index && value == NULL);
+  return value;
 }

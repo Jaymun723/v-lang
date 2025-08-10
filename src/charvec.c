@@ -12,8 +12,10 @@ CharVec *cvCreate() {
 }
 
 void freeCv(CharVec *charVec) {
-  free(charVec->data);
-  free(charVec);
+  if (charVec != NULL) {
+    free(charVec->data);
+    free(charVec);
+  }
 }
 
 void printfCv(CharVec *charVec) { fprintfCv(stdout, charVec, false); }
@@ -27,6 +29,16 @@ void fprintfCv(FILE *channel, CharVec *cv, bool oneLine) {
       }
     } else {
       fprintf(channel, " ");
+    }
+  }
+}
+
+void fprintfCustomCv(FILE *channel, CharVec *cv,
+                     void (*fprintfByte)(FILE *, unsigned char)) {
+  for (unsigned int i = 0; i < cv->length; i++) {
+    fprintfByte(channel, (unsigned char)cv->data[i]);
+    if (i + 1 < cv->length) {
+      fprintf(channel, ", ");
     }
   }
 }
@@ -70,6 +82,10 @@ char getCv(CharVec *cv, unsigned int i) {
 }
 
 void writeCv(FILE *file, CharVec *cv) {
+  if (cv == NULL) {
+    writeULEB128(file, 0);
+    return;
+  }
   writeULEB128(file, cv->length);
   writeRawCv(file, cv);
 }

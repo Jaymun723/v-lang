@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 
 #define GENERATE_WASM_CONST_ENUM(ENUM, CODE) WasmConst_##ENUM,
 #define GENERATE_WASM_CONST_STRING(ENUM, CODE) #ENUM,
@@ -33,3 +34,5 @@ typedef enum WasmConst {
 extern const char *WASM_CONST_STRING[];
 
 extern const unsigned char WASM_CONST_CODE[];
+
+void fprintfWasmConst(FILE *channel, unsigned char code);

@@ -55,6 +55,8 @@ char *stringCopyN(const char *source, int n) {
 bool isNum(char c) { return c >= '0' && c <= '9'; }
 
 bool isLetter(char c) {
+  if (c == '_')
+    return true;
   if (c >= 'a' && c <= 'z')
     return true;
   if (c >= 'A' && c <= 'Z')
