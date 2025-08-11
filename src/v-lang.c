@@ -122,6 +122,7 @@ int main(int argc, char **argv) {
   }
   WasmModule *module = createWasmModule();
   AstProgram *program = parseAstProgram(tkl);
+  printfAstProgram(program);
   freeTkl(tkl, true);
 
   if (program == NULL) {
@@ -134,11 +135,9 @@ int main(int argc, char **argv) {
     completlyFreeFuncMapper(fm);
     freeWasmModule(module);
     freeAstProgram(program);
+    free(derived_output);
     return 1;
   }
-
-  printf("Before emiting:\n");
-  printfAstProgram(program);
 
   emit(module, fm, program);
 

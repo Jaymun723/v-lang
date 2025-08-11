@@ -2,6 +2,37 @@
 
 > A toy language to be compiled to WASM.
 
+## TODO
+
+- ~~expressions~~
+- ~~function calls~~
+- if / else:
+  - ~~lex~~
+  - ~~parse~~
+  - validate
+  - emit
+- while
+  - ~~lex~~
+  - ~~parse~~
+  - validate
+  - emit
+- variables
+  - lex
+  - parse
+  - validate
+  - emit
+- graphics : Milestone : chasm expressibility
+- functions
+  - lex
+  - parse
+  - validate
+  - emit
+- memory
+  - arrays
+  - pointer
+- Milestone : "C" expressibility
+- classes
+
 ## Building
 
 ```

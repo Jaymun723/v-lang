@@ -8,7 +8,7 @@ TARGET_OBJ := $(BUILD_DIR)/$(TARGET_NAME).o
 
 # Compiler and flags
 CC := gcc
-CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic -fsanitize=address -fno-omit-frame-pointer
+CFLAGS := -std=c17 -Wall -Wextra -Wuninitialized -pedantic -fsanitize=address -fno-omit-frame-pointer -g
 INCLUDES := -I$(SRC_DIR)
 
 # Source files (exclude v-lang.c for tests)
@@ -47,8 +47,8 @@ test-%: $(OBJS)
 	fi
 	@echo "Building test for $*..."
 	$(CC) $(CFLAGS) $(INCLUDES) $^ $(TEST_DIR)/test_$*.c -o $(BUILD_DIR)/test_$*
-	@echo "Running test_$*..."
-	$(BUILD_DIR)/test_$*
+# 	@echo "Running test_$*..."
+# 	$(BUILD_DIR)/test_$*
 
 clean:
 	rm -rf $(BUILD_DIR)

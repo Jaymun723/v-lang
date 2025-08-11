@@ -59,6 +59,7 @@ AstExpr *createFuncCallExpr(char *funcName, AstExpr *arg) {
 AstExpr *createBinaryExpr(TokenType opType, AstExpr *left, AstExpr *right) {
   AstExpr *expr = (AstExpr *)malloc(sizeof(AstExpr));
   expr->evalType = AstEvalUndefined;
+  printf("expr->evalType = AstEvalUndefined = %d;", AstEvalUndefined);
   expr->type = AstExprBinaryOp;
   expr->binary.op = opType;
   expr->binary.left = left;
@@ -184,8 +185,10 @@ void fprintfAstExpr(FILE *channel, AstExpr *expr, int depth) {
   for (int i = 0; i < depth; i++) {
     fprintf(channel, " ");
   }
-  fprintf(channel, "Expr(%s, evalType=%s, ", AST_EXPR_TYPE_STRING[expr->type],
-          AST_EVAL_TYPE_STRING[expr->evalType]);
+  if (AST_EXPR_TYPE_STRING[expr->type] == NULL) {
+    fprintf(channel, "NULL\n");
+    return;
+  }
   if (expr->type == AstExprConstant) {
     if (expr->evalType == AstEvalInteger) {
       fprintf(channel, "%d)\n", *(int *)expr->constant.value);

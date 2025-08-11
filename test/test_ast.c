@@ -2,8 +2,9 @@
 #include "test_framework.h"
 
 int main() {
-  const char *sourceCode = "print(4 - 7 * 2);\nassert(7+8+2+-.2);";
-  TokenList *tkl = tokenize(sourceCode);
+  const char *fileName = "out/main.v";
+  FILE *file = fopen(fileName, "rb");
+  TokenList *tkl = tokenizeFromFile(file);
   removeSpaces(tkl);
 
   printfTkl(tkl);

@@ -42,6 +42,24 @@ AstStatementList *parseStmtList(TokenList *tkl) {
   return stmtList;
 }
 
+AstStatementList *parseBlock(TokenList *tkl) {
+  Token *tok = tklPeek(tkl);
+  if (tok->type != TokenOpenBracket) {
+    fprintf(stderr, "parseBlock: Expected '{'.\n");
+    return NULL;
+  }
+  tklPop(tkl);
+  AstStatementList *stmtList = parseStmtList(tkl);
+  tok = tklPeek(tkl);
+  if (tok->type != TokenCloseBracket) {
+    freeAstStmtList(stmtList);
+    fprintf(stderr, "parseBlock: Expected '}'.\n");
+    return NULL;
+  }
+  tklPop(tkl);
+  return stmtList;
+}
+
 void freeAstStmtList(AstStatementList *stmtList) {
   if (stmtList->statementHead != NULL) {
     freeAstStatement(stmtList->statementHead);
