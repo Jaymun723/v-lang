@@ -20,4 +20,11 @@ void fprintfFuncMapper(FILE *channel, FuncMapper *fm);
 unsigned int addFunction(FuncMapper *fm, const char *funcName, CharVec *params,
                          CharVec *locals, CharVec *results, bool import);
 int getFunctionIndex(FuncMapper *fm, const char *funcName);
+
+/**
+ * Property: 0 -> params, 1 -> locals, 2 -> results
+ */
+CharVec *getFunctionProperty(FuncMapper *fm, const char *funcName,
+                             int property);
+
 void emitFuncMapper(WasmModule *module, FuncMapper *fm);

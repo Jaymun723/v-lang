@@ -79,7 +79,7 @@ int sizeWasmImport(WasmImport *import) {
 }
 
 void writeWasmImport(FILE *file, WasmImport *import) {
-  printf("writeWasmImport: %s %s\n", import->mod, import->name);
+  // printf("writeWasmImport: %s %s\n", import->mod, import->name);
   writeString(file, import->mod);
   writeString(file, import->name);
   fputc(import->importType, file);

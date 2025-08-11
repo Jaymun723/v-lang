@@ -30,11 +30,11 @@ typedef enum AstEvalType {
   FOREACH_AST_EVAL_TYPE(GENERATE_AST_EVAL_TYPE_ENUM) AstEvalTypeCount
 } AstEvalType;
 
-extern const char *AST_EXPR_TYPE_STRING[];
+extern const char *AST_EVAL_TYPE_STRING[];
 
 typedef struct AstExpr {
   AstExprType type;
-  AstEvalType evaluateType;
+  AstEvalType evalType;
   union {
     struct {
       void *value;
@@ -45,6 +45,11 @@ typedef struct AstExpr {
     } unary;
     struct {
       TokenType op;
+      enum {
+        AstExprBinaryNoCast,
+        AstExprBinaryCastLeft,
+        AstExprBinaryCastRight
+      } cast;
       struct AstExpr *left;
       struct AstExpr *right;
     } binary;

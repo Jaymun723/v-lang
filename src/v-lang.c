@@ -137,6 +137,9 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  printf("Before emiting:\n");
+  printfAstProgram(program);
+
   emit(module, fm, program);
 
   freeFuncMapper(fm);

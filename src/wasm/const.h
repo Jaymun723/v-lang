@@ -20,11 +20,17 @@
   WASM_CONST(f32_const, 0x43)                                                  \
   WASM_CONST(f64_const, 0x44)                                                  \
   WASM_CONST(i32_neg, 0x47)                                                    \
+  WASM_CONST(f64_neg, 0x8c)                                                    \
   WASM_CONST(i32_add, 0x6a)                                                    \
+  WASM_CONST(f64_add, 0xa0)                                                    \
   WASM_CONST(i32_sub, 0x6b)                                                    \
+  WASM_CONST(f64_sub, 0xa1)                                                    \
   WASM_CONST(i32_mul, 0x6c)                                                    \
+  WASM_CONST(f64_mul, 0xa2)                                                    \
   WASM_CONST(i32_div_s, 0x6d)                                                  \
+  WASM_CONST(f64_div, 0xa3)                                                    \
   WASM_CONST(i32_rem_s, 0x6f)                                                  \
+  WASM_CONST(f64_convert_i32_s, 0xb7)                                          \
   WASM_CONST(call, 0x10)
 
 typedef enum WasmConst {

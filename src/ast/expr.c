@@ -6,6 +6,9 @@
 const char *AST_EXPR_TYPE_STRING[] = {
     FOREACH_AST_EXPR_TYPE(GENERATE_AST_EXPR_TYPE_STRING)};
 
+const char *AST_EVAL_TYPE_STRING[] = {
+    FOREACH_AST_EVAL_TYPE(GENERATE_AST_EVAL_TYPE_STRING)};
+
 int getPrecedence(TokenType type) {
   switch (type) {
   case TokenMult:
@@ -24,11 +27,11 @@ AstExpr *createConstantExpr(Token *tok) {
   AstExpr *expr = (AstExpr *)malloc(sizeof(AstExpr));
   expr->type = AstExprConstant;
   if (tok->type == TokenInteger) {
-    expr->evaluateType = AstEvalInteger;
+    expr->evalType = AstEvalInteger;
     expr->constant.value = (void *)malloc(sizeof(int));
     *((int *)expr->constant.value) = *((int *)tok->value);
   } else {
-    expr->evaluateType = AstEvalFloating;
+    expr->evalType = AstEvalFloating;
     expr->constant.value = (void *)malloc(sizeof(double));
     *((double *)expr->constant.value) = *((double *)tok->value);
   }
@@ -37,7 +40,7 @@ AstExpr *createConstantExpr(Token *tok) {
 
 AstExpr *createUnaryExpr(AstExpr *child) {
   AstExpr *expr = (AstExpr *)malloc(sizeof(AstExpr));
-  expr->evaluateType = AstEvalUndefined;
+  expr->evalType = AstEvalUndefined;
   expr->type = AstExprUnaryOp;
   expr->unary.op = TokenMinus;
   expr->unary.child = child;
@@ -46,7 +49,7 @@ AstExpr *createUnaryExpr(AstExpr *child) {
 
 AstExpr *createFuncCallExpr(char *funcName, AstExpr *arg) {
   AstExpr *expr = (AstExpr *)malloc(sizeof(AstExpr));
-  expr->evaluateType = AstEvalUndefined;
+  expr->evalType = AstEvalUndefined;
   expr->type = AstExprFuncCall;
   expr->funcCall.funcName = funcName;
   expr->funcCall.arg = arg;
@@ -55,11 +58,12 @@ AstExpr *createFuncCallExpr(char *funcName, AstExpr *arg) {
 
 AstExpr *createBinaryExpr(TokenType opType, AstExpr *left, AstExpr *right) {
   AstExpr *expr = (AstExpr *)malloc(sizeof(AstExpr));
-  expr->evaluateType = AstEvalUndefined;
+  expr->evalType = AstEvalUndefined;
   expr->type = AstExprBinaryOp;
   expr->binary.op = opType;
   expr->binary.left = left;
   expr->binary.right = right;
+  expr->binary.cast = AstExprBinaryNoCast;
   return expr;
 }
 
@@ -180,9 +184,10 @@ void fprintfAstExpr(FILE *channel, AstExpr *expr, int depth) {
   for (int i = 0; i < depth; i++) {
     fprintf(channel, " ");
   }
-  fprintf(channel, "Expr(%s, ", AST_EXPR_TYPE_STRING[expr->type]);
+  fprintf(channel, "Expr(%s, evalType=%s, ", AST_EXPR_TYPE_STRING[expr->type],
+          AST_EVAL_TYPE_STRING[expr->evalType]);
   if (expr->type == AstExprConstant) {
-    if (expr->evaluateType == AstEvalInteger) {
+    if (expr->evalType == AstEvalInteger) {
       fprintf(channel, "%d)\n", *(int *)expr->constant.value);
     } else {
       fprintf(channel, "%f)\n", *(double *)expr->constant.value);

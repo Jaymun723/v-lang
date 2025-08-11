@@ -9,6 +9,10 @@ void emitByteToMainCode(WasmModule *module, WasmConst byte) {
   appendCv(module->codeSection->codeHead->body, WASM_CONST_CODE[byte]);
 }
 
+void emitRawByteToMainCode(WasmModule *module, char byte) {
+  appendCv(module->codeSection->codeHead->body, byte);
+}
+
 void emitSLEB128ToMainCode(WasmModule *module, int value) {
   emitSLEB128(module->codeSection->codeHead->body, value);
 }
@@ -20,14 +24,14 @@ void emitULEB128ToMainCode(WasmModule *module, unsigned int value) {
 void emitIEEE754ToMainCode(WasmModule *module, double value) {
   unsigned char *bytes = (unsigned char *)&value;
   for (int i = 0; i < 8; i++) {
-    emitByteToMainCode(module, bytes[i]);
+    emitRawByteToMainCode(module, bytes[i]);
   }
 }
 
 void emitExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr);
 
 void emitConstantExpr(WasmModule *module, AstExpr *expr) {
-  if (expr->evaluateType == AstEvalFloating) {
+  if (expr->evalType == AstEvalFloating) {
     emitByteToMainCode(module, WasmConst_f64_const);
     emitIEEE754ToMainCode(module, *(double *)expr->constant.value);
   } else {
@@ -37,25 +41,43 @@ void emitConstantExpr(WasmModule *module, AstExpr *expr) {
 }
 void emitUnaryOpExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
   emitExpr(module, fm, expr->unary.child);
-  emitByteToMainCode(module, WasmConst_i32_neg);
+  if (expr->evalType == AstEvalInteger) {
+    emitByteToMainCode(module, WasmConst_i32_neg);
+  } else {
+    emitByteToMainCode(module, WasmConst_f64_neg);
+  }
 }
 void emitBinaryOpExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
   emitExpr(module, fm, expr->binary.left);
+  if (expr->binary.cast == AstExprBinaryCastLeft) {
+    emitByteToMainCode(module, WasmConst_f64_convert_i32_s);
+  }
   emitExpr(module, fm, expr->binary.right);
+  if (expr->binary.cast == AstExprBinaryCastRight) {
+    emitByteToMainCode(module, WasmConst_f64_convert_i32_s);
+  }
+
+  bool isInteger = expr->evalType == AstEvalInteger;
+
   switch (expr->binary.op) {
   case TokenAdd:
-    emitByteToMainCode(module, WasmConst_i32_add);
+    emitByteToMainCode(module,
+                       isInteger ? WasmConst_i32_add : WasmConst_f64_add);
     break;
   case TokenMinus:
-    emitByteToMainCode(module, WasmConst_i32_sub);
+    emitByteToMainCode(module,
+                       isInteger ? WasmConst_i32_sub : WasmConst_f64_sub);
     break;
   case TokenMult:
-    emitByteToMainCode(module, WasmConst_i32_mul);
+    emitByteToMainCode(module,
+                       isInteger ? WasmConst_i32_mul : WasmConst_f64_mul);
     break;
   case TokenDiv:
-    emitByteToMainCode(module, WasmConst_i32_div_s);
+    emitByteToMainCode(module,
+                       isInteger ? WasmConst_i32_div_s : WasmConst_f64_div);
     break;
   case TokenMod:
+    fprintf(stderr, "should be validated but pagnan you konw.\n");
     emitByteToMainCode(module, WasmConst_i32_rem_s);
     break;
 

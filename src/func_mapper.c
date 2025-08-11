@@ -152,6 +152,29 @@ int getFunctionIndex(FuncMapper *fm, const char *funcName) {
   return -1;
 }
 
+CharVec *getFunctionProperty(FuncMapper *fm, const char *funcName,
+                             int property) {
+  int index = getFunctionIndex(fm, funcName);
+  if (index == -1) {
+    return NULL;
+  }
+  MappedFunc *mpf;
+  if ((unsigned int)index < fm->numImported) {
+    mpf = &fm->importedFunctions[index];
+  } else {
+    mpf = &fm->moduleFunctions[index - fm->numImported];
+  }
+  if (property == 0) {
+    return mpf->params;
+  } else if (property == 1) {
+    return mpf->locals;
+  } else if (property == 2) {
+    return mpf->results;
+  } else {
+    return NULL;
+  }
+}
+
 void emitFuncMapper(WasmModule *module, FuncMapper *fm) {
   for (unsigned int i = 0; i < fm->numImported; i++) {
     int typeIndex =
