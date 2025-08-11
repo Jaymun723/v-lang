@@ -17,6 +17,17 @@ unary_expr :=
 
 func_call := IDENTIFIER OPEN_PARENT expr CLOSE_PARENT
 
-statement := func_call SEMI | NEWLINE
+block :=
+  OPEN_BRACKET statement CLOSE_BRACKET |
 
-program := statement program | END_OF_FILE
+else_tail := . | ELSE block | ELSE IF OPEN_PARENT expr CLOSE_PARENT else_tail
+
+statement :=
+  func_call SEMI |
+  IF OPEN_PARENT expr CLOSE_PARENT block else_tail |
+  WHILE OPEN_PARENT expr CLOSE_PARENT block |
+  NEWLINE
+
+statement_list := statement | statement statement_list
+
+program := statement_list | END_OF_FILE

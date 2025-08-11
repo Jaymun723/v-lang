@@ -103,12 +103,16 @@ bool validateExprType(FuncMapper *fm, AstExpr *expr) {
   return false;
 }
 
-bool validate(FuncMapper *fm, AstProgram *program) {
-  for (AstStatement *statement = program->statementHead; statement != NULL;
+bool validateStmtList(FuncMapper *fm, AstStatementList *stmtList) {
+  for (AstStatement *statement = stmtList->statementHead; statement != NULL;
        statement = statement->next) {
     if (!validateExprType(fm, statement->funcCall)) {
       return false;
     }
   }
   return true;
+}
+
+bool validate(FuncMapper *fm, AstProgram *program) {
+  return validateStmtList(fm, program->stmtList);
 }

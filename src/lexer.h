@@ -19,7 +19,10 @@
   TOKEN(Semi)                                                                  \
   TOKEN(Space)                                                                 \
   TOKEN(Newline)                                                               \
-  TOKEN(EndOfFile)
+  TOKEN(EndOfFile)                                                             \
+  TOKEN(OpenBracket)                                                           \
+  TOKEN(CloseBracket)                                                          \
+  TOKEN(Keyword)
 
 typedef enum TokenType {
   FOREACH_TOKEN(GENERATE_TOKEN_ENUM) TokenTypeCount
@@ -27,14 +30,19 @@ typedef enum TokenType {
 
 extern const char *TOKEN_TYPE_STRING[];
 
-// #define FOREACH_KEYWORD(KEYWORD) KEYWORD(print)
+#define GENERATE_KEYWORD_ENUM(ENUM) Keyword_##ENUM,
+#define GENERATE_KEYWORD_STRING(STRING) #STRING,
 
-// typedef enum KeywordType {
-//   FOREACH_KEYWORD(GENERATE_ENUM_WITH_PREFIX_KW) KeywordTypeCount
-// } KeywordType;
+#define FOREACH_KEYWORD(KEYWORD)                                               \
+  KEYWORD(if)                                                                  \
+  KEYWORD(else)                                                                \
+  KEYWORD(while)
 
-// static const char *KEYWORD_TYPE_STRING[] =
-// {FOREACH_KEYWORD(GENERATE_STRING)};
+typedef enum Keyword {
+  FOREACH_KEYWORD(GENERATE_KEYWORD_ENUM) KeywordCount
+} Keyword;
+
+extern const char *KEYWORD_STRING[];
 
 typedef struct Token {
   TokenType type;

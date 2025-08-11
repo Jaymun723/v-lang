@@ -1,14 +1,11 @@
 #pragma once
 #include "../lexer.h"
 #include "expr.h"
-#include "statement.h"
+#include "statement_list.h"
 #include <stdio.h>
 
 typedef struct AstProgram {
-  unsigned int numStatements;
-
-  AstStatement *statementHead;
-  AstStatement *statementTail;
+  AstStatementList *stmtList;
 } AstProgram;
 
 AstProgram *parseAstProgram(TokenList *tkl);

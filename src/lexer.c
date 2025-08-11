@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 const char *TOKEN_TYPE_STRING[] = {FOREACH_TOKEN(GENERATE_TOKEN_STRING)};
+const char *KEYWORD_STRING[] = {FOREACH_KEYWORD(GENERATE_KEYWORD_STRING)};
 
 TokenList *tklCreate() {
   TokenList *result = (TokenList *)malloc(sizeof(TokenList));
@@ -31,12 +32,15 @@ void tklAppend(TokenList *list, TokenType type, void *value) {
   case TokenSemi:
   case TokenNewline:
   case TokenEndOfFile:
+  case TokenOpenBracket:
+  case TokenCloseBracket:
     tok->value = NULL;
     break;
   case TokenIdentifier:
   case TokenInteger:
   case TokenFloating:
   case TokenSpace:
+  case TokenKeyword:
     tok->value = value;
     break;
   default:
@@ -60,6 +64,7 @@ void freeToken(Token *tok, bool freeValue) {
   case TokenIdentifier:
   case TokenInteger:
   case TokenFloating:
+  case TokenKeyword:
     if (freeValue) {
       free(tok->value);
     }
@@ -67,9 +72,6 @@ void freeToken(Token *tok, bool freeValue) {
   default:
     break;
   }
-  // if (tok->next != NULL) {
-  //   freeToken(tok->next, freeValue);
-  // }
   free(tok);
 }
 
@@ -78,9 +80,6 @@ void freeTkl(TokenList *list, bool freeTokensValue) {
     free(list);
     return;
   }
-  // if (list->head != NULL) {
-  //   freeToken(list->head, freeTokensValue);
-  // }
   Token *tok = list->head;
   while (tok != NULL) {
     Token *toFree = tok;
@@ -102,7 +101,7 @@ void fprintfToken(FILE *channel, Token *tok) {
   } else if (tok->type == TokenFloating) {
     double value = *((double *)tok->value);
     fprintf(channel, "(%.4f)", value);
-  } else if (tok->type == TokenIdentifier) {
+  } else if (tok->type == TokenIdentifier || tok->type == TokenKeyword) {
     fprintf(channel, "(%s)", (char *)tok->value);
   } else if (tok->type == TokenSpace) {
     fprintf(channel, "(%ld)", (intptr_t)tok->value);
@@ -127,91 +126,6 @@ void printfTkl(TokenList *tkl) {
   printf(")\n");
 }
 
-TokenList *tokenize(const char *sourceCode) {
-  TokenList *tkl = tklCreate();
-
-  int currentIndex = 0;
-  int sourceCodeLenght = stringLength(sourceCode);
-  while (currentIndex <= sourceCodeLenght) {
-    char c = sourceCode[currentIndex];
-    if (c == '\0') {
-      tklAppend(tkl, TokenEndOfFile, NULL);
-      currentIndex++;
-    } else if (c == ' ') {
-      int start = currentIndex;
-      while (sourceCode[currentIndex] == ' ') {
-        currentIndex++;
-      }
-      intptr_t value = currentIndex - start;
-      tklAppend(tkl, TokenSpace, (char *)value);
-    } else if (c == '\n') {
-      tklAppend(tkl, TokenNewline, NULL);
-      currentIndex++;
-    } else if (c == '(') {
-      tklAppend(tkl, TokenOpenParent, NULL);
-      currentIndex++;
-    } else if (c == ')') {
-      tklAppend(tkl, TokenCloseParent, NULL);
-      currentIndex++;
-    } else if (c == '-') {
-      tklAppend(tkl, TokenMinus, NULL);
-      currentIndex++;
-    } else if (c == '+') {
-      tklAppend(tkl, TokenAdd, NULL);
-      currentIndex++;
-    } else if (c == '*') {
-      tklAppend(tkl, TokenMult, NULL);
-      currentIndex++;
-    } else if (c == '/') {
-      tklAppend(tkl, TokenDiv, NULL);
-      currentIndex++;
-    } else if (c == '%') {
-      tklAppend(tkl, TokenMod, NULL);
-      currentIndex++;
-    } else if (c == ';') {
-      tklAppend(tkl, TokenSemi, NULL);
-      currentIndex++;
-    } else if (isLetter(c)) {
-      int start = currentIndex;
-      while (isAlphanum(sourceCode[currentIndex])) {
-        currentIndex++;
-      }
-      int l = currentIndex - start;
-      char *word = stringCopyN(&sourceCode[start], l);
-
-      tklAppend(tkl, TokenIdentifier, word);
-    } else if (isNum(c) || c == '.') {
-      bool isFloating = c == '.';
-      int start = currentIndex;
-      while (isNum(c) || c == '.') {
-        if (c == '.' && (start != currentIndex)) {
-          if (isFloating) {
-            break;
-          } else {
-            isFloating = true;
-          }
-        }
-        currentIndex++;
-        c = sourceCode[currentIndex];
-      }
-      if (isFloating) {
-        double *value = readFloating(sourceCode, start, currentIndex);
-        tklAppend(tkl, TokenFloating, (void *)value);
-      } else {
-        int *value = readInteger(sourceCode, start, currentIndex);
-        tklAppend(tkl, TokenInteger, (void *)value);
-      }
-    } else {
-      fprintf(stderr,
-              "Unable to lex this character: \"%c\". Aborting lexing.\n", c);
-      freeTkl(tkl, true);
-      return NULL;
-    }
-  }
-
-  return tkl;
-}
-
 TokenList *tokenizeFromFile(FILE *file) {
   TokenList *tkl = tklCreate();
 
@@ -228,6 +142,15 @@ TokenList *tokenizeFromFile(FILE *file) {
       }
       ungetc(c, file);
       tklAppend(tkl, TokenSpace, (char *)value);
+    } else if (c == '#') {
+      while (c != '\n') {
+        c = fgetc(file);
+        if (c == EOF) {
+          tklAppend(tkl, TokenEndOfFile, NULL);
+          break;
+        }
+      }
+      tklAppend(tkl, TokenNewline, NULL);
     } else if (c == '\n') {
       tklAppend(tkl, TokenNewline, NULL);
     } else if (c == '(') {
@@ -246,6 +169,10 @@ TokenList *tokenizeFromFile(FILE *file) {
       tklAppend(tkl, TokenMod, NULL);
     } else if (c == ';') {
       tklAppend(tkl, TokenSemi, NULL);
+    } else if (c == '{') {
+      tklAppend(tkl, TokenOpenBracket, NULL);
+    } else if (c == '}') {
+      tklAppend(tkl, TokenCloseBracket, NULL);
     } else if (isLetter(c)) {
       CharVec *cv = cvCreate();
       while (isAlphanum(c)) {
@@ -254,8 +181,18 @@ TokenList *tokenizeFromFile(FILE *file) {
       }
       ungetc(c, file);
       char *word = cvToString(cv);
+      bool isKeyword = false;
 
-      tklAppend(tkl, TokenIdentifier, word);
+      for (int i = 0; (i < KeywordCount) && !isKeyword; i++) {
+        if (stringCmp(word, KEYWORD_STRING[i]) == 0) {
+          tklAppend(tkl, TokenKeyword, word);
+          isKeyword = true;
+        }
+      }
+
+      if (!isKeyword) {
+        tklAppend(tkl, TokenIdentifier, word);
+      }
     } else if (isNum(c) || c == '.') {
       bool isFloating = c == '.';
       CharVec *cv = cvCreate();

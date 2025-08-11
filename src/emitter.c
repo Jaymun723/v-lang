@@ -122,13 +122,18 @@ void emitStatement(WasmModule *module, FuncMapper *fm,
   }
 }
 
-void emit(WasmModule *module, FuncMapper *fm, AstProgram *program) {
-  module->startSection->index = getFunctionIndex(fm, "start");
-
-  for (AstStatement *statement = program->statementHead; statement != NULL;
+void emitStmtList(WasmModule *module, FuncMapper *fm,
+                  AstStatementList *stmtList) {
+  for (AstStatement *statement = stmtList->statementHead; statement != NULL;
        statement = statement->next) {
     emitStatement(module, fm, statement);
   }
+}
+
+void emit(WasmModule *module, FuncMapper *fm, AstProgram *program) {
+  module->startSection->index = getFunctionIndex(fm, "start");
+
+  emitStmtList(module, fm, program->stmtList);
   emitByteToMainCode(module, WasmConst_end);
 
   emitFuncMapper(module, fm);
