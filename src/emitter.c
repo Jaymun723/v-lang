@@ -115,10 +115,42 @@ void emitExpr(WasmModule *module, FuncMapper *fm, AstExpr *expr) {
   }
 }
 
+void emitElseTail(WasmModule *module, FuncMapper *fm, AstElseTail *tail) {
+  if (tail->type == AstElseTailEmpty) {
+    return;
+  } else if (tail->type == AstElseTailElse) {
+    emitRawByteToMainCode(module, 0x05);
+    emitStmtList(module, fm, tail->block);
+  } else if (tail->type == AstElseTailElif) {
+    emitRawByteToMainCode(module, 0x05);
+    emitStatement(module, fm, tail->elif);
+  }
+}
+
 void emitStatement(WasmModule *module, FuncMapper *fm,
                    AstStatement *statement) {
   if (statement->type == AstStmtFuncCall) {
     emitExpr(module, fm, statement->funcCall);
+  } else if (statement->type == AstStmtIf) {
+    emitExpr(module, fm, statement->If.condition);
+    emitRawByteToMainCode(module, 0x04); // if
+    emitRawByteToMainCode(module, 0x40); // no type for now
+    emitStmtList(module, fm, statement->If.block);
+    emitElseTail(module, fm, statement->If.tail);
+    emitRawByteToMainCode(module, 0x0b); // end
+  } else if (statement->type == AstStmtWhile) {
+    emitRawByteToMainCode(module, 0x03); // loop
+    emitRawByteToMainCode(module, 0x40); // no type for now
+    emitExpr(module, fm, statement->While.condition);
+
+    emitRawByteToMainCode(module, 0x04); // if
+    emitRawByteToMainCode(module, 0x40); // no type for now
+    emitStmtList(module, fm, statement->While.block);
+    emitRawByteToMainCode(module, 0x0c); // br
+    emitULEB128ToMainCode(module, 1);    // 0 -> if, 1 -> loop
+    emitRawByteToMainCode(module, 0x0b); // end
+
+    emitRawByteToMainCode(module, 0x0b); // end
   }
 }
 

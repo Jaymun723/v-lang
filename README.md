@@ -6,16 +6,8 @@
 
 - ~~expressions~~
 - ~~function calls~~
-- if / else:
-  - ~~lex~~
-  - ~~parse~~
-  - ~~validate~~
-  - emit
-- while
-  - ~~lex~~
-  - ~~parse~~
-  - ~~validate~~
-  - emit
+- ~~if / else~~
+- ~~while~~
 - variables
   - lex
   - parse

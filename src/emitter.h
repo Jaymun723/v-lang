@@ -5,4 +5,7 @@
 #include "wasm/module.h"
 #include <stdbool.h>
 
+void emitStatement(WasmModule *module, FuncMapper *fm, AstStatement *statement);
+void emitStmtList(WasmModule *module, FuncMapper *fm,
+                  AstStatementList *stmtList);
 void emit(WasmModule *module, FuncMapper *fm, AstProgram *program);
