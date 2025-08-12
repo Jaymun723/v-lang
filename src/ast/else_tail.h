@@ -1,8 +1,6 @@
 #pragma once
 #include "../lexer.h"
 #include "expr.h"
-// #include "statement.h"
-// #include "statement_list.h"
 #include <stdio.h>
 
 // Forward declarations

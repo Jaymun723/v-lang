@@ -1,4 +1,5 @@
 #include "validation.h"
+#include "ast/statement.h"
 #include "wasm/const.h"
 
 bool validateExprType(FuncMapper *fm, AstExpr *expr) {
@@ -103,10 +104,63 @@ bool validateExprType(FuncMapper *fm, AstExpr *expr) {
   return false;
 }
 
+bool validateAstElseTail(FuncMapper *fm, AstElseTail *tail) {
+  if (tail->type == AstElseTailEmpty) {
+    return true;
+  } else if (tail->type == AstElseTailElse) {
+    return validateStmtList(fm, tail->block);
+  } else if (tail->type == AstElseTailElif) {
+    return validateIfStatement(fm, tail->elif);
+  }
+  return false;
+}
+
+bool validateIfStatement(FuncMapper *fm, AstStatement *stmt) {
+  if (stmt->type == AstStmtIf) {
+    if (!validateExprType(fm, stmt->If.condition)) {
+      return false;
+    }
+    if (stmt->If.condition->evalType != AstEvalInteger) {
+      fprintf(stderr, "validateIfStatement: Condition should are evalutation "
+                      "type to integer.\n");
+      return false;
+    }
+    if (!validateStmtList(fm, stmt->If.block)) {
+      return false;
+    }
+    return validateAstElseTail(fm, stmt->If.tail);
+  } else {
+    return false;
+  }
+}
+
+bool validateWhileStatement(FuncMapper *fm, AstStatement *stmt) {
+  if (stmt->type == AstStmtWhile) {
+    if (!validateExprType(fm, stmt->While.condition)) {
+      return false;
+    }
+    if (stmt->While.condition->evalType != AstEvalInteger) {
+      fprintf(stderr,
+              "validateWhileStatement: Condition should are evalutation "
+              "type to integer.\n");
+      return false;
+    }
+    return validateStmtList(fm, stmt->While.block);
+  } else {
+    return false;
+  }
+}
+
 bool validateStmtList(FuncMapper *fm, AstStatementList *stmtList) {
   for (AstStatement *statement = stmtList->statementHead; statement != NULL;
        statement = statement->next) {
-    if (!validateExprType(fm, statement->funcCall)) {
+    if (statement->type == AstStmtIf && !validateIfStatement(fm, statement)) {
+      return false;
+    } else if (statement->type == AstStmtWhile &&
+               !validateWhileStatement(fm, statement)) {
+      return false;
+    } else if (statement->type == AstStmtFuncCall &&
+               !validateExprType(fm, statement->funcCall)) {
       return false;
     }
   }

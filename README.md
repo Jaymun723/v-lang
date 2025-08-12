@@ -9,12 +9,12 @@
 - if / else:
   - ~~lex~~
   - ~~parse~~
-  - validate
+  - ~~validate~~
   - emit
 - while
   - ~~lex~~
   - ~~parse~~
-  - validate
+  - ~~validate~~
   - emit
 - variables
   - lex
